@@ -5,15 +5,31 @@
   
 
   
-  <title>Hexo</title>
+  <title>hexo博客搭建——1.github搭建运行基础 | Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://yoursite.com/index.html">
+  <meta name="description" content="终于～把博客搭建起来啦，第一篇就在这里简单讲述下博客搭建的过程。这里只记录最简单通过hexo和github搭建博客的方法。 相关网站hexo、github、nodejs 博客搭建github账号准备首先需要一个github账号～访问github右上角signup注册，根据相关提示即可get一个账号。 后边需要安装git及创建相关仓库可以参照相关教程操作。 nodejs安装hexo本身是基于node">
+<meta property="og:type" content="article">
+<meta property="og:title" content="hexo博客搭建——1.github搭建运行基础">
+<meta property="og:url" content="http://yoursite.com/2020/05/10/hexo%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA%E2%80%94%E2%80%941-github%E6%90%AD%E5%BB%BA%E8%BF%90%E8%A1%8C%E5%9F%BA%E7%A1%80/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="终于～把博客搭建起来啦，第一篇就在这里简单讲述下博客搭建的过程。这里只记录最简单通过hexo和github搭建博客的方法。 相关网站hexo、github、nodejs 博客搭建github账号准备首先需要一个github账号～访问github右上角signup注册，根据相关提示即可get一个账号。 后边需要安装git及创建相关仓库可以参照相关教程操作。 nodejs安装hexo本身是基于node">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://i.loli.net/2020/05/10/AMDwEym28QJacuS.png">
+<meta property="og:image" content="https://i.loli.net/2020/05/10/5G4qgcMbZPymdUK.png">
+<meta property="og:image" content="https://i.loli.net/2020/05/10/puLjSrzwHJx2Ac6.png">
+<meta property="og:image" content="https://i.loli.net/2020/05/14/sq2FU4lrwW8ButZ.jpg">
+<meta property="og:image" content="https://i.loli.net/2020/05/14/qgvbp3u1HSXrt28.png">
+<meta property="og:image" content="https://i.loli.net/2020/05/14/HI64hAdmzCosQwv.png">
+<meta property="og:image" content="https://i.loli.net/2020/05/14/Ks23qVCbxpakLj1.png">
+<meta property="og:image" content="https://i.loli.net/2020/05/14/ZAdm8TButPhxeML.png">
+<meta property="og:image" content="https://i.loli.net/2020/05/14/9fp6sxlNXBVchQg.png">
+<meta property="og:image" content="https://i.loli.net/2020/05/14/FMq5LxVaUeJny1s.png">
+<meta property="article:published_time" content="2020-05-10T14:07:44.000Z">
+<meta property="article:modified_time" content="2020-05-14T15:50:52.768Z">
 <meta property="article:author" content="John Doe">
+<meta property="article:tag" content="博客">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2020/05/10/AMDwEym28QJacuS.png">
   
     <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
   
@@ -62,58 +78,7 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main">
-  
-    <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/05/14/hello-world/" class="article-date">
-  <time datetime="2020-05-14T14:47:21.854Z" itemprop="datePublished">2020-05-14</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/05/14/hello-world/">Hello World</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html" target="_blank" rel="noopener">Deployment</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2020/05/14/hello-world/" data-id="cka6xqe0o0000c2088ffod27s" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-hexo博客搭建——1-github搭建运行基础" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-hexo博客搭建——1-github搭建运行基础" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2020/05/10/hexo%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA%E2%80%94%E2%80%941-github%E6%90%AD%E5%BB%BA%E8%BF%90%E8%A1%8C%E5%9F%BA%E7%A1%80/" class="article-date">
   <time datetime="2020-05-10T14:07:44.000Z" itemprop="datePublished">2020-05-10</time>
@@ -126,8 +91,8 @@
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/05/10/hexo%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA%E2%80%94%E2%80%941-github%E6%90%AD%E5%BB%BA%E8%BF%90%E8%A1%8C%E5%9F%BA%E7%A1%80/">hexo博客搭建——1.github搭建运行基础</a>
+    <h1 class="article-title" itemprop="name">
+      hexo博客搭建——1.github搭建运行基础
     </h1>
   
 
@@ -208,11 +173,23 @@
     </footer>
   </div>
   
-</article>
-
+    
+<nav id="article-nav">
+  
+    <a href="/2020/05/14/hello-world/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Hello World
+        
+      </div>
+    </a>
+  
+  
+</nav>
 
   
-
+</article>
 
 </section>
         
