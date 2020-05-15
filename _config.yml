@@ -98,4 +98,6 @@ theme: landscape
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
-  type: ''
+  type: git
+  repository: https://github.com/xuchang-x/xuchang-x.github.io
+  branch: master
