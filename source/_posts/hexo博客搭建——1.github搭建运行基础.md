@@ -13,7 +13,7 @@ tags:
 # 博客搭建
 ## github账号准备
 首先需要一个github账号～
-![github登录注册位置](./hexo博客搭建——1.github搭建运行基础/github登录注册位置.jpg)
+![github登录注册位置](github登录注册位置.jpg)
 访问[github](https://github.com/)右上角signup注册，根据相关提示即可get一个账号。
 
 后边需要安装git及创建相关仓库可以参照相关教程操作。
@@ -22,7 +22,7 @@ tags:
 hexo本身是基于nodejs运行的，所以安装hexo之前首先要给电脑上安装nodejs。
 
 访问[nodejs官网](https://nodejs.org/en/)获得相关安装包，
-![nodejs 安装下载](./hexo博客搭建——1.github搭建运行基础/nodejs%20安装下载.jpg)
+![nodejs 安装下载](nodejs%20安装下载.jpg)
 左侧为最新稳定版，右侧是最新版。或者可以访问[nodejs中文网](http://nodejs.cn/download/)获得相关安装包。
 
 安装后输入相关命令可以获得当前系统node版本和npm版本说明安装成功。
@@ -72,7 +72,7 @@ nodejs安装成功后安装hexo需输入如下命令。安装时注意权限问�
     hexo init
     ```
 命令初始化博客系统，hexo会自动下载相关文件(请忽略下图的隐藏文件夹)
-![hexo博客系统文件夹](hexo博客搭建——1.github搭建运行基础/hexo博客系统文件夹.jpg)
+![hexo博客系统文件夹](hexo博客系统文件夹.jpg)
 其中文件作用大致如下
 
 - _config.yml：博客系统的一些配置，比如之后要用到的皮肤主题等等
@@ -94,7 +94,7 @@ nodejs安装成功后安装hexo需输入如下命令。安装时注意权限问�
     ```
 3. 推送代码到`用户名.github.io`的仓库
 参照仓库中的
-![推送命令](hexo博客搭建——1.github搭建运行基础/推送命令.jpg)
+![推送命令](推送命令.jpg)
 命令执行即可
 
 *注*上述三个步骤可以参照git相关教程进行
@@ -102,12 +102,12 @@ nodejs安装成功后安装hexo需输入如下命令。安装时注意权限问�
 ### 排错
 按照上述操作之后，可能会在仓库的setting页面看到如下报错
 setting页面入口
-![进入setting页面入口](hexo博客搭建——1.github搭建运行基础/进入setting页面入口.jpg)
+![进入setting页面入口](进入setting页面入口.jpg)
 报错
-![报错](hexo博客搭建——1.github搭建运行基础/报错.png)
+![报错](报错.png)
 > “Your site is having problems building: The tag fancybox on line 77 in themes/landscape/README.md is not a recognized Liquid tag. For more information, see https://help.github.com/articles/page-build-failed-unknown-tag-error/.”
 
-![README 77行](hexo博客搭建——1.github搭建运行基础/READ%20ME%2077行.jpg)
+![README 77行](READ%20ME%2077行.jpg)
 
 ## 部署运行
 ### 本地部署
@@ -116,8 +116,8 @@ setting页面入口
     hexo s
     ```
 会出现如下输出并在本地的4000端口运行博客系统。
-![启动成功命令行](hexo博客搭建——1.github搭建运行基础/启动成功命令行.png)
-![本地博客页面](hexo博客搭建——1.github搭建运行基础/本地博客页面.jpg)
+![启动成功命令行](启动成功命令行.png)
+![本地博客页面](本地博客页面.jpg)
 至此说明本地运行成功。
 
 命令行中按ctrl+c退出本地运行
@@ -142,5 +142,5 @@ setting页面入口
 
 ## 访问个人博客
 至此个人博客应该已经部署到github上了，输入网址``用户名.github.io`即可访问(其中"用户名"需替换为实际github用户名)。
-![部署配置修改](hexo博客搭建——1.github搭建运行基础/部署配置修改.jpg)
-![线上博客页面](hexo博客搭建——1.github搭建运行基础/线上博客页面.jpg)
+![部署配置修改](部署配置修改.jpg)
+![线上博客页面](线上博客页面.jpg)
