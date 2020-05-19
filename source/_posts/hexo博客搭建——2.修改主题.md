@@ -3,6 +3,7 @@ title: hexo博客搭建——2.修改主题
 date: 2020-05-15 20:57:00
 tags:
     - 博客
+description: 自己在github上搭建博客而没有选择首先在博客平台上的其中一个原因就是，相对而言在github上搭博客自己能控制的相对多一些，比如...找一个好看的皮肤～
 ---
 # 主题选择
 [hexo官方主题地址](https://hexo.io/themes/)
