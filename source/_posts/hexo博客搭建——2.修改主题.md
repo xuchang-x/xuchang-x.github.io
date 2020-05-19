@@ -14,7 +14,7 @@ tags:
 > https://github.com/theme-next/hexo-theme-next
 
 进入相关github仓库复制仓库地址
-![image.png](https://i.loli.net/2020/05/15/41HNUVi2ZJEetYy.png)
+![github clone位置](./hexo博客搭建——2.修改主题/github%20clone位置.jpg)
 
 进入本地创建博客系统的blog文件夹下的themes文件夹，命令行输入
     ```shell script
@@ -24,3 +24,28 @@ tags:
 实际情况下需替换为所选主题的仓库地址
 
 # 主题生效
+打开blog文件夹下_config.yml文件，修改theme配置
+![theme配置](./hexo博客搭建——2.修改主题/主题配置文件位置.jpg)
+这里主题为下载下来主题所在的文件夹名
+![文件夹名](./hexo博客搭建——2.修改主题/文件夹名.jpg)
+配置好之后重新执行
+    ```shell script
+    hexo g
+    hexo s
+    ```
+即可本地浏览新主题效果
+    ```shell script
+    hexo d
+    ```
+即可部署到github
+![新主题](./hexo博客搭建——2.修改主题/Muse主题.jpg)
+## next主题
+这里使用的next主题，这个主题下有四个子主题，可以通过修改themes/hexo-theme-next
+下的_config.yml实现子主题变更，next主题本身相关的一些配置也都在这个配置文件中。
+
+这里只介绍修改子主题
+
+进入配置文件找到schemes配置项，启用其中一个即可
+![schemes](./hexo博客搭建——2.修改主题/子主题shceme.jpg)
+配置后重新生成主题变为如下效果
+![Muse子主题](./hexo博客搭建——2.修改主题/Mist主题.jpg)

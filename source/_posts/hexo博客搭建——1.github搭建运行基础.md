@@ -8,31 +8,27 @@ tags:
 这里只记录最简单通过hexo和github搭建博客的方法。
 
 # 相关网站
-[hexo](https://hexo.io/zh-cn/)、
-[github](https://github.com/)、
-[nodejs](https://nodejs.org/en/)
+[hexo](https://hexo.io/zh-cn/)、[github](https://github.com/)、[nodejs](https://nodejs.org/en/)
+
 # 博客搭建
 ## github账号准备
 首先需要一个github账号～
-![github-sign_in.png](https://i.loli.net/2020/05/10/AMDwEym28QJacuS.png)
+![github登录注册位置](./hexo博客搭建——1.github搭建运行基础/github登录注册位置.jpg)
 访问[github](https://github.com/)右上角signup注册，根据相关提示即可get一个账号。
 
 后边需要安装git及创建相关仓库可以参照相关教程操作。
-
 
 ## nodejs安装
 hexo本身是基于nodejs运行的，所以安装hexo之前首先要给电脑上安装nodejs。
 
 访问[nodejs官网](https://nodejs.org/en/)获得相关安装包，
-![nodejs-en.png](https://i.loli.net/2020/05/10/5G4qgcMbZPymdUK.png)
+![nodejs 安装下载](./hexo博客搭建——1.github搭建运行基础/nodejs%20安装下载.jpg)
 左侧为最新稳定版，右侧是最新版。或者可以访问[nodejs中文网](http://nodejs.cn/download/)获得相关安装包。
 
 安装后输入相关命令可以获得当前系统node版本和npm版本说明安装成功。
-
     ```shell script
     node --version
     v12.16.3
-    
     npm --version
     6.14.4
     ```
