@@ -18,9 +18,9 @@ description: 自己在github上搭建博客而没有选择首先在博客平台�
 ![github clone位置](github%20clone位置.jpg)
 
 进入本地创建博客系统的blog文件夹下的themes文件夹，命令行输入
-    ```shell script
-    git clone git@github.com:theme-next/hexo-theme-next.git
-    ```
+```shell script
+git clone git@github.com:theme-next/hexo-theme-next.git
+```
 这里的`git@github.com:theme-next/hexo-theme-next.git`是以当前主题为例，
 实际情况下需替换为所选主题的仓库地址
 
@@ -30,14 +30,14 @@ description: 自己在github上搭建博客而没有选择首先在博客平台�
 这里主题为下载下来主题所在的文件夹名
 ![文件夹名](文件夹名.jpg)
 配置好之后重新执行
-    ```shell script
-    hexo g
-    hexo s
-    ```
+```shell script
+hexo g
+hexo s
+```
 即可本地浏览新主题效果
-    ```shell script
-    hexo d
-    ```
+```shell script
+hexo d
+```
 即可部署到github
 ![新主题](Muse主题.jpg)
 ## next主题
