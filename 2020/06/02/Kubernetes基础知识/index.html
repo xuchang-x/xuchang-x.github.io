@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"xuchang-x.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="kubenetes.io官方tutorial基础知识学习笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kubernetes基础知识">
+<meta property="og:url" content="https://xuchang-x.github.io/2020/06/02/Kubernetes%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/index.html">
+<meta property="og:site_name" content="ChangChang的博客">
+<meta property="og:description" content="kubenetes.io官方tutorial基础知识学习笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://xuchang-x.github.io/2020/06/02/Kubernetes%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/kubectl%20describe%20pods.jpg">
+<meta property="og:image" content="https://xuchang-x.github.io/2020/06/02/Kubernetes%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/kubectl%20exec%20$POD_NAME%20env.jpg">
+<meta property="og:image" content="https://xuchang-x.github.io/2020/06/02/Kubernetes%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/kubectl%20get%20deployments.jpg">
+<meta property="og:image" content="https://xuchang-x.github.io/2020/06/02/Kubernetes%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/%E5%89%AF%E6%9C%AC%E9%9B%86%20%E6%89%A9%E5%AE%B9%E5%89%8D.jpg">
+<meta property="og:image" content="https://xuchang-x.github.io/2020/06/02/Kubernetes%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/%E5%89%AF%E6%9C%AC%E9%9B%86%20%E6%89%A9%E5%AE%B9%E5%90%8E.jpg">
+<meta property="og:image" content="https://xuchang-x.github.io/2020/06/02/Kubernetes%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/%E6%BB%9A%E5%8A%A8%E6%9B%B4%E6%96%B0%E8%BF%87%E7%A8%8B1.svg">
+<meta property="og:image" content="https://xuchang-x.github.io/2020/06/02/Kubernetes%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/%E6%BB%9A%E5%8A%A8%E6%9B%B4%E6%96%B0%E8%BF%87%E7%A8%8B2.svg">
+<meta property="og:image" content="https://xuchang-x.github.io/2020/06/02/Kubernetes%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/%E6%BB%9A%E5%8A%A8%E6%9B%B4%E6%96%B0%E8%BF%87%E7%A8%8B3.svg">
+<meta property="og:image" content="https://xuchang-x.github.io/2020/06/02/Kubernetes%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/%E6%BB%9A%E5%8A%A8%E6%9B%B4%E6%96%B0%E8%BF%87%E7%A8%8B4.svg">
+<meta property="og:image" content="https://xuchang-x.github.io/2020/06/02/Kubernetes%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/%E5%8F%91%E5%B8%83%E5%A4%B1%E8%B4%A5.jpg">
+<meta property="og:image" content="https://xuchang-x.github.io/2020/06/02/Kubernetes%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/deploy%E8%B0%83%E5%BA%A6.svg">
+<meta property="og:image" content="https://xuchang-x.github.io/2020/06/02/Kubernetes%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/pod.svg">
+<meta property="og:image" content="https://xuchang-x.github.io/2020/06/02/Kubernetes%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/node.svg">
+<meta property="og:image" content="https://xuchang-x.github.io/2020/06/02/Kubernetes%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/service.svg">
+<meta property="article:published_time" content="2020-06-02T07:03:32.000Z">
+<meta property="article:modified_time" content="2020-06-02T10:16:30.116Z">
+<meta property="article:author" content="于归君悦">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="命令">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://xuchang-x.github.io/2020/06/02/Kubernetes%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/kubectl%20describe%20pods.jpg">
+
+<link rel="canonical" href="https://xuchang-x.github.io/2020/06/02/Kubernetes%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Kubernetes基础知识 | ChangChang的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ChangChang的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://xuchang-x.github.io/2020/06/02/Kubernetes%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="于归君悦">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ChangChang的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Kubernetes基础知识
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-06-02 15:03:32 / 修改时间：18:16:30" itemprop="dateCreated datePublished" datetime="2020-06-02T15:03:32+08:00">2020-06-02</time>
+            </span>
+
+          
+            <div class="post-description">kubenetes.io官方tutorial基础知识学习笔记</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="官方文档地址"><a href="#官方文档地址" class="headerlink" title="官方文档地址"></a>官方文档地址</h1><p><a href="https://kubernetes.io/" target="_blank" rel="noopener">k8s官网</a>:<a href="https://kubernetes.io/" target="_blank" rel="noopener">https://kubernetes.io/</a><br><a href="https://kubernetes.io/docs/tutorials/" target="_blank" rel="noopener">指引</a>:<a href="https://kubernetes.io/docs/tutorials/" target="_blank" rel="noopener">https://kubernetes.io/docs/tutorials/</a></p>
+<h1 id="基础操作"><a href="#基础操作" class="headerlink" title="基础操作"></a>基础操作</h1><h2 id="创建集群"><a href="#创建集群" class="headerlink" title="创建集群"></a>创建集群</h2><p>这里创建集群用的是k8s官网的在线交互系统，其中的两个命令</p>
+<ul>
+<li><code>minikube version</code>    查看minikube版本</li>
+<li><code>minikube start</code>  部署应用</li>
+</ul>
+<p>平常应该不太行，看起来minikube是这个在线测试系统配置的命令</p>
+<h2 id="部署应用-部署到pod"><a href="#部署应用-部署到pod" class="headerlink" title="部署应用(部署到pod)"></a>部署应用(部署到pod)</h2><ul>
+<li><p><code>kubectl version</code> kubectl版本</p>
+</li>
+<li><p><code>kubectl get nodes</code>   获取集群中节点信息</p>
+</li>
+<li><p><code>kubectl create deployment kubernetes-bootcamp --image=gcr.io/google-samples/kubernetes-bootcamp:v1</code></p>
+<ul>
+<li><code>kubectl create deployment</code></li>
+<li>应用名</li>
+<li>使用的镜像</li>
+</ul>
+</li>
+<li><p><code>kubectl get deployments</code> 获取部署的应用信息</p>
+</li>
+<li><p><code>kubectl proxy</code> 代理</p>
+<ul>
+<li>代理后可以通过指定端口<code>curl http://localhost:8001/version</code>访问应用</li>
+</ul>
+</li>
+</ul>
+<h2 id="获取应用信息"><a href="#获取应用信息" class="headerlink" title="获取应用信息"></a>获取应用信息</h2><ul>
+<li><code>kubectl get</code> 列出资源</li>
+<li><code>kubectl describe</code>    显示有关资源的详细信息</li>
+<li><code>kubectl logs</code>    打印pod和其中容器的日志</li>
+<li><code>kubectl exec</code>    在pod中的容器上执行命令</li>
+</ul>
+<p>上述四个命令并非完整命令，比如需要获得pod相关信息则需要将命令细化为如下所示用法：</p>
+<ul>
+<li><code>kubectl get pods</code>    获取pod列表</li>
+<li><code>kubectl describe pods</code>    获取pod描述信息<br>  <img src="kubectl%20describe%20pods.jpg" alt="kubectl describe pods"></li>
+</ul>
+<h3 id="获取pod运行结果"><a href="#获取pod运行结果" class="headerlink" title="获取pod运行结果"></a>获取pod运行结果</h3><ol>
+<li><p><code>export POD_NAME=$(kubectl get pods -o go-template --template '&#123;&#123;range .items&#125;&#125;&#123;&#123;.metadata.name&#125;&#125;&#123;&#123;"\n"}}&#123;&#123;end&#125;&#125;')`</code><br>获得pod名字并且输出成变量</p>
+</li>
+<li><p><code>curl http://localhost:8001/api/v1/namespaces/default/pods/$POD_NAME/proxy/</code>输出pod内容</p>
+</li>
+<li><p><code>kubectl logs $POD_NAME</code> 获取pod里的运行日志</p>
+<p> <em>TODO:</em></p>
+<ol>
+<li>这里应该不是固定url就能拿到内容，如果pod里同时暴露了两个url显然是不能通过这一个url同事获得的。</li>
+<li>proxy 只用<code>kubectl proxy</code>就代理到8001端口了，后续继续细化一下如何把pod的指定端口暴露到外部的指定端口。</li>
+</ol>
+</li>
+</ol>
+<h3 id="在指定pod中运行命令"><a href="#在指定pod中运行命令" class="headerlink" title="在指定pod中运行命令"></a>在指定pod中运行命令</h3><ol>
+<li><code>kubectl exec $POD_NAME env</code> 在指定pod中运行env命令，效果如下<br> <img src="kubectl%20exec%20$POD_NAME%20env.jpg" alt="kubectl exec $POD_NAME env"><br> <em>TODO:</em> 多个pod同时运行命令如何操作，pod名之间用<code>,</code>分隔么</li>
+<li><code>kubectl exec -ti $POD_NAME bash</code>在pod中开启一个bash，这里和docker一样，通过<code>-it</code>参数使用交互式bash</li>
+<li><code>exit</code>   退出container</li>
+</ol>
+<h2 id="发布应用"><a href="#发布应用" class="headerlink" title="发布应用"></a>发布应用</h2><ol>
+<li><code>kubectl expose deployment/kubernetes-bootcamp --type=&quot;NodePort&quot; --port 8080</code>    暴露service</li>
+<li><code>kubectl label pod $POD_NAME app=v1</code>通过label命令为指定pod(也有可能是其他粒度)贴标签</li>
+<li><code>kubectl get pods -l app=v1</code>即可通过label获取相关pod;<code>kubectl describe pods -l app=v1</code>可获得相关描述<br> 也就是可以用<code>-l app=v1</code>替代<code>$POD_NAME</code></li>
+<li><code>kubectl delete service -l run=kubernetes-bootcamp</code>  删除应用</li>
+</ol>
+<h2 id="扩容缩容"><a href="#扩容缩容" class="headerlink" title="扩容缩容"></a>扩容缩容</h2><p>扩容缩容是通过改变 Deployment 中的副本数量来实现的</p>
+<ul>
+<li><code>kubectl get deployments</code> 获取deployment信息<br>  <img src="kubectl%20get%20deployments.jpg" alt="kubectl get deployments"><ul>
+<li>NAME:集群中deployments的名称信息</li>
+<li>READY: 已部署副本/目标副本数比例</li>
+<li>UP-TO-DATE: 已完成更新达到目标副本要求的副本数</li>
+<li>AVAILABLE: 全部可用副本数</li>
+<li>AGE:应用运行时长</li>
+</ul>
+</li>
+<li><code>kubectl get rs</code>  查看应用创建的副本集<br>  <img src="%E5%89%AF%E6%9C%AC%E9%9B%86%20%E6%89%A9%E5%AE%B9%E5%89%8D.jpg" alt="副本集 扩容前"><br>  注意这里是副本集，不是每个副本都有单独的名字。<br>  扩容后如下<br>  <img src="%E5%89%AF%E6%9C%AC%E9%9B%86%20%E6%89%A9%E5%AE%B9%E5%90%8E.jpg" alt="副本集 扩容后"><br>  副本集命名规则<code>[DEPLOYMENT-NAME]-[RANDOM-STRING]</code></li>
+<li><code>kubectl scale deployments/kubernetes-bootcamp --replicas=4</code>  修改副本数，从而实现扩容缩容<br>此时通过<code>kubectl get pods -o wide</code>可以看到pod数已经扩容到4。当有多个实例运行时，打到服务上的请求会进行负载均衡。</li>
+</ul>
+<h2 id="更新应用"><a href="#更新应用" class="headerlink" title="更新应用"></a>更新应用</h2><p>Kubernetes通过滚动更新（Rolling Updates）使用新的实例逐步更新Pod，更新过程中零停机。过程如下:<br><img src="%E6%BB%9A%E5%8A%A8%E6%9B%B4%E6%96%B0%E8%BF%87%E7%A8%8B1.svg" alt="滚动更新过程1"><br><img src="%E6%BB%9A%E5%8A%A8%E6%9B%B4%E6%96%B0%E8%BF%87%E7%A8%8B2.svg" alt="滚动更新过程2"><br><img src="%E6%BB%9A%E5%8A%A8%E6%9B%B4%E6%96%B0%E8%BF%87%E7%A8%8B3.svg" alt="滚动更新过程3"><br><img src="%E6%BB%9A%E5%8A%A8%E6%9B%B4%E6%96%B0%E8%BF%87%E7%A8%8B4.svg" alt="滚动更新过程4"></p>
+<ul>
+<li><code>kubectl set image deployments/kubernetes-bootcamp kubernetes-bootcamp=jocatalin/kubernetes-bootcamp:v2</code>更新镜像<ul>
+<li><code>kubectl set image</code></li>
+<li>deployment名称</li>
+<li>容器名</li>
+<li>新镜像</li>
+</ul>
+</li>
+<li><code>kubectl rollout status deployments/kubernetes-bootcamp</code>  查看更新状态（是否更新完成）</li>
+</ul>
+<h3 id="发布错误回滚"><a href="#发布错误回滚" class="headerlink" title="发布错误回滚"></a>发布错误回滚</h3><ul>
+<li><code>kubectl set image deployments/kubernetes-bootcamp kubernetes-bootcamp=gcr.io/google-samples/kubernetes-bootcamp:v10</code> 发布了一个错误的镜像。</li>
+</ul>
+<p>这个时候我们通过<code>kubectl get deployments</code>显示状态有三个pod正在运行，两个pod是最新镜像<br><img src="%E5%8F%91%E5%B8%83%E5%A4%B1%E8%B4%A5.jpg" alt="发布失败"><br>这时候通过<code>kubectl get pods</code>和<code>kubectl describe pods</code>看到也没有镜像不对，k8s在检测到错误后保留了剩余节点继续提供服务。</p>
+<ul>
+<li><code>kubectl rollout undo deployments/kubernetes-bootcamp</code>    回滚发布<ul>
+<li><code>kubectl rollout undo</code></li>
+<li>deployment名称</li>
+</ul>
+</li>
+</ul>
+<h1 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h1><p>上述操作中涉及到多个层级的概念，总结如下：</p>
+<ol>
+<li><p>deployment</p>
+<p> 在Kubernetes集群中部署容器化应用程序需要创建Kubernetes Deployment配置。<br> Deployment指挥Kubernetes 如何创建和更新应用程序的实例。<br> 创建Deployment后，Kubernetes master将应用程序实例调度到集群中的各个节点上。<br> <img src="deploy%E8%B0%83%E5%BA%A6.svg" alt="deployment"><br> 也就是说，deployment是在master节点上的配置信息</p>
+</li>
+<li><p>pod</p>
+<p> pod是Kubernetes抽象出来的最小调度模块，表示一组一个或多个应用程序容器（如 Docker 或 rkt ），以及这些容器的一些共享资源。包括:</p>
+<ul>
+<li>储存空间</li>
+<li>网络，以pod为单位，每个pod在集群中有享有一个ip，pod内应用共享这个ip。</li>
+<li>有关每个容器如何运行的信息，例如容器映像版本或要使用的特定端口。在同一个pod中的镜像可以共享这些信息。<br><img src="pod.svg" alt="pod"></li>
+</ul>
+</li>
+<li><p>node</p>
+<p> 工作节点，Kubernetes中的参与计算的机器，可以是虚拟机或物理计算机，具体取决于集群。<br> <img src="node.svg" alt="node"><br> 工作节点可以有多个 pod ，Kubernetes master节点会自动根据各个node上的可用资源在群集中调度pod。</p>
+</li>
+<li><p>service</p>
+<p> 尽管每个pod都有一个唯一的IP地址，但是如果没有service，这些IP不会向外暴露。<br> service将一组相关pod组合成为服务并向外暴露，其允许pod在Kubernetes中进行死亡和复制等生命周期而又不影响应用程序。<br> <img src="service.svg" alt="service　"><br> service暴露方式有以下几种</p>
+<ul>
+<li>ClusterIP（默认）:在群集的内部IP上公开服务，这种类型使得只能从群集内访问服务。</li>
+<li>NodePort:使用NAT在群集中每个选定节点的相同端口上公开服务，可从群集外部通过<NodeIP>:<NodePort>访问，ClusterIP策略的超集。</li>
+<li>LoadBalancer:在当前集群中创建一个外部负载均衡器，为这个负载均衡器分配一个固定的外部IP，通过这个负载均衡器访问内部服务，NodePort策略的超集。</li>
+<li>ExternalName:通过配置externalName暴露当前服务，通过CNAME配置访问当前服务，无需代理。此类型需要v1.7或更高版本kube-dns。</li>
+</ul>
+</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
+<li>service&gt;pod&gt;容器<ul>
+<li>同一个pod可以有多个或者单个容器组成最小调度单位，单个pod中的容器共享资源且联系十分紧密，可以看作单个容器无法单独工作。</li>
+<li>service聚合了多个pod，组合成一个服务，同时提供像集群外暴露端口的能力。</li>
+</ul>
+</li>
+<li>node<ul>
+<li>node本身与service、pod、容器并不是同一层面的概念，其代表了集群中具体的物理机(也有可能是虚拟机)。</li>
+</ul>
+</li>
+<li>deployment<ul>
+<li>master节点中对程序调度的相关配置。</li>
+</ul>
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/k8s/" rel="tag"># k8s</a>
+              <a href="/tags/%E5%91%BD%E4%BB%A4/" rel="tag"># 命令</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/22/hexo%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA%E2%80%94%E2%80%943-%E4%B8%BA%E5%8D%9A%E5%AE%A2%E6%B7%BB%E5%8A%A0%E5%9B%BE%E7%89%87/" rel="prev" title="hexo博客搭建——3.为博客添加图片">
+      <i class="fa fa-chevron-left"></i> hexo博客搭建——3.为博客添加图片
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#官方文档地址"><span class="nav-number">1.</span> <span class="nav-text">官方文档地址</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#基础操作"><span class="nav-number">2.</span> <span class="nav-text">基础操作</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#创建集群"><span class="nav-number">2.1.</span> <span class="nav-text">创建集群</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#部署应用-部署到pod"><span class="nav-number">2.2.</span> <span class="nav-text">部署应用(部署到pod)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#获取应用信息"><span class="nav-number">2.3.</span> <span class="nav-text">获取应用信息</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#获取pod运行结果"><span class="nav-number">2.3.1.</span> <span class="nav-text">获取pod运行结果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#在指定pod中运行命令"><span class="nav-number">2.3.2.</span> <span class="nav-text">在指定pod中运行命令</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#发布应用"><span class="nav-number">2.4.</span> <span class="nav-text">发布应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#扩容缩容"><span class="nav-number">2.5.</span> <span class="nav-text">扩容缩容</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#更新应用"><span class="nav-number">2.6.</span> <span class="nav-text">更新应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#发布错误回滚"><span class="nav-number">2.6.1.</span> <span class="nav-text">发布错误回滚</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#基本概念"><span class="nav-number">3.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.1.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">于归君悦</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">于归君悦</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
