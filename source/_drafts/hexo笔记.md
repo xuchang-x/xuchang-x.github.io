@@ -17,3 +17,21 @@ description: 仅用来暂时记录一些小问题，后边会整理成文
    ![](hexo笔记/特殊字符报错source.jpg)
    解决方式:https://blog.csdn.net/weixin_34209406/article/details/88986783
    http://www.w3school.com.cn/html/html_entities.asp
+4. <code>export POD_NAME=$(kubectl get pods -o go-template --template '&#123;&#123;range .items&#125;&#125;&#123;&#123;.metadata.name&#125;&#125;&#123;&#123;"\n"}}&#123;&#123;end&#125;&#125;')`</code>
+带了<code>标签再写多行
+
+<code>export POD_NAME=
+$(kubectl get pods -o go-template --template 
+'&#123;&#123;range .items&#125;&#125;&#123;&#123;.metadata.name&#125;&#125;&#123;&#123;"\n"}}&#123;&#123;end&#125;&#125;')`</code>
+
+hexo g会出问题
+
+并不是，只有这种分行的方式会出问题
+```yaml
+ <code>export POD_NAME=$(kubectl get pods 
+-o go-template --template '&#123;&#123;range .items&#125;&#125;&#123;&#123;.metadata.name&#125;&#125;
+&#123;&#123;"\n"}}&#123;&#123;end&#125;&#125;')`</code>
+```
+![](hexo笔记/code标签分行问题表现.jpg)
+这不是...markdown也有问题了，可以查一下index.html，但是有可能是本身markdown解析就有问题
+![](hexo笔记/code标签分行问题markdown表现.jpg)

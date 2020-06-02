@@ -43,9 +43,7 @@ description: kubenetes.io官方tutorial基础知识学习笔记
     ![kubectl describe pods](kubectl%20describe%20pods.jpg)
     
 ### 获取pod运行结果
-1. <code>export POD_NAME=$(kubectl get pods 
--o go-template --template '&#123;&#123;range .items&#125;&#125;&#123;&#123;.metadata.name&#125;&#125;
-&#123;&#123;"\n"}}&#123;&#123;end&#125;&#125;')`</code>
+1. <code>export POD_NAME=$(kubectl get pods -o go-template --template '&#123;&#123;range .items&#125;&#125;&#123;&#123;.metadata.name&#125;&#125;&#123;&#123;"\n"}}&#123;&#123;end&#125;&#125;')`</code>
 获得pod名字并且输出成变量
 2. `curl http://localhost:8001/api/v1/namespaces/default/pods/$POD_NAME/proxy/`输出pod内容
 3. `kubectl logs $POD_NAME` 获取pod里的运行日志
