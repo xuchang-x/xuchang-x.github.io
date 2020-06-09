@@ -3,7 +3,7 @@ title: Kubernetes基础操作
 date: 2020-06-02 15:03:32
 tags:
     - k8s
-    - 命令
+    - 学习笔记
 description: kubenetes.io官方tutorial基础操作学习笔记
 ---
 # 官方文档地址

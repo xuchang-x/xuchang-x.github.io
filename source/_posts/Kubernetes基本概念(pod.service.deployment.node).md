@@ -3,7 +3,7 @@ title: Kubernetes基本概念(pod.service.deployment.node)
 date: 2020-06-02 18:23:16
 tags:
     - k8s
-    - 命令
+    - 学习笔记
 description: k8s涉及到多个层级的概念，对其中的pod、service、deployment、node四个概念进行阐述和关系理顺
 ---
 # pod
@@ -16,7 +16,7 @@ pod是Kubernetes抽象出来的最小调度模块，表示一组一个或多个�
 # service
 尽管每个pod都有一个唯一的IP地址，但是如果没有service，这些IP不会向外暴露。
 service将一组相关pod组合成为服务并向外暴露，其允许pod在Kubernetes中进行死亡和复制等生命周期而又不影响应用程序。
-![service　](service.svg)
+![service](service.svg)
 service暴露方式有以下几种
 - ClusterIP（默认）:在群集的内部IP上公开服务，这种类型使得只能从群集内访问服务。
 - NodePort:使用NAT在群集中每个选定节点的相同端口上公开服务，可从群集外部通过<NodeIP>:<NodePort>访问，ClusterIP策略的超集。
