@@ -4,7 +4,7 @@ date: 2020-06-09 11:01:54
 tags:
     - java
     - rxjava
-description: rxjava作为一个异步框架blabla
+description: 最近学习的项目中使用了rxjava，其作为一个异步调用况下好像深得大家喜爱，不过其中的逻辑和调用关系好像并不是很好理解，涉及众多的回掉，后边还涉及到多线程的问题。这里参照网上各位大佬的教程和自己的学习方法逐渐深化的进行代码阅读并记录下相关过程，希望对各位有些帮助。
 ---
 # demo
 这里以rxjava1.2.0为例子进行分析，首先写一个最简单的demo之后我们逐步debug走一下它的运行流程。
@@ -51,14 +51,17 @@ public class RxjavaTest {
 - onError():发送一条错误信息
 - onCompleted():告知observer消息发送完毕
 
+*TODO:* 实际debug过程中是执行了onError之后还是走到了onComplete的，但是observer里没有相关输出，应该是哪里阻断了。
+
 消息发送过程中onError或onComplete触发后本次消息发送流程结束，后边的消息不会再发送，包括后边所有的onNext、onError和onCompleted。
 demo中如果想触发onCompleted需要注释掉onError。
 
 # 流程分析
-# 入口
+## 入口
 `observable.subscribe(observer);`触发了observable发送消息，上边的代码都是在构造observer和observable。
+
 ## subscribe()
-observable.subscribe方法有六个重载方法，但最后都可以归结到一个方法
+observable.subscribe方法有五个重载方法，但最后都可以归结到一个方法，具体如下：
 
 1. 无参数
     ```java
@@ -140,11 +143,13 @@ public final Subscription subscribe(final Observer<? super T> observer) {
   return subscribe(new ObserverSubscriber<T>(observer));
 }
 ```
-这个方法中将observer封装成了subscriber，subscriber中多了一些方法。
+这个方法中将observer封装成了subscriber，subscriber中相对于observer补充了一些方法：
+- `onStart()`: 在事件还未发送之前被调用，可以做一些准备动作。如果准备工作的线程不是在subscribe所发生的线程，可以用doOnSebscribe()方法代替onStart()
+- `unsubscribe()`: 用于取消订阅，方法调用后Subscriber不再接收事件，在这个方法调用前需要判断isUnsubscribed()。在subscribe()之后，Observable会持有Subscriber的引用，有内存泄漏的风险所以不再使用Subscriber的时候需要调用unsubscribe()来解除引用关系，避免内存泄漏
 
 *TODO:* subscriber&observer
 
-之后调用static的sbscribe方法并传入当前observable(代码中的this)
+之后调用static的subscribe方法并通过this引用当前observable传给static方法
 ```java
 public final Subscription subscribe(Subscriber<? super T> subscriber) {
         return Observable.subscribe(subscriber, this);
@@ -209,9 +214,8 @@ static <T> Subscription subscribe(Subscriber<? super T> subscriber, Observable<T
         }
     }
 ```
-这里去除掉检查异常部分主要有三个过程:
-1. 调取`subscriber.onStart();`这个方法是subscriber比observer多的方法，在核心方法开始之前触发。
-这里因为demo中用的是observer所以这个方法中并没有任何操作。
+这里去除掉检查异常部分主要完成了三个工作：
+1. 调取`subscriber.onStart();`这个方法是subscriber比observer多的方法，在核心方法开始之前触发。这里demo中用的是observer，这个方法中并没有任何操作。
 
 2. subscriber包装成SafeSubscriber
     ```java
@@ -225,15 +229,14 @@ static <T> Subscription subscribe(Subscriber<? super T> subscriber, Observable<T
    RxJavaHooks.onObservableStart(observable, observable.onSubscribe).call(subscriber);
    return RxJavaHooks.onObservableReturn(subscriber);
     ```
-`RxJavaHooks.onObservableStart(observable, observable.onSubscribe).call(subscriber);`
-的前半部分`RxJavaHooks.onObservableStart(observable, observable.onSubscribe)`返回的就是经过封装和处理的业务中的observable，后边的call方法即为调用业务逻辑中的相关call方法。
+`RxJavaHooks.onObservableStart(observable, observable.onSubscribe).call(subscriber);`的前半部分`RxJavaHooks.onObservableStart(observable, observable.onSubscribe)`返回的就是经过封装和处理的业务中的observable创建时传入的onSubscribe，后边的call方法即为调用业务逻辑中的相关call方法。
 
 ## RxJavaHooks
-通过上边的分析我们可以看到核心的方法是通过RxJavaHooks触发的，下边我们会分析到底具体挂了哪些钩子都做了什么，具体怎么触发的。
+通过上边的分析我们可以看到核心的方法是通过RxJavaHooks触发的，下边我们会分析具体的触发流程。
 
-首先我们要明白这里传入的observable就是经过多层转化后业务代码中的observable
+首先我们要明白这里传入的`observable`就是经过多层转化后业务代码中的`observable`
 
-我们先来看下`observable.onSubscribe`中的`onSubscribe`，这里只有一个赋值的地方就是
+我们先来看下`observable.onSubscribe`，这里只有一个赋值的地方就是
 ```java
 protected Observable(OnSubscribe<T> f) {
     this.onSubscribe = f;
@@ -245,12 +248,13 @@ public static <T> Observable<T> create(OnSubscribe<T> f) {
     return new Observable<T>(RxJavaHooks.onCreate(f));
 }
 ```
-这里就和业务代码联系起来了，也就是说这里的`onSubscribe`是业务代码中调用`Observable.create`方法时传入的`onSubscribe`。
-到这通过属性名大概也知道为什么在subscribe时会调用call方法中的操作了，核心是调用了onSubscribe，当然是在subscribe时候调用23333。
+这里和业务代码联系起来可以发现，`onSubscribe`就是业务代码中调用`Observable.create()`方法时传入的`onSubscribe`。
+
+到这里通过属性名大概也知道为什么在subscribe时会调用call方法中的操作了，核心是调用了onSubscribe，当然是在subscribe时候调用23333。
 
 *TODO:* 所以消息每次在subscribe时候推送过来，是pull的还是push的...毕竟也没看到可以往里边补充信息
 
-我们可以看到`RxJavaHooks.onObservableStart(observable, observable.onSubscribe)`返回的也是一个`onSubscribe`，后边的`call()`方法调用具体的业务逻辑。
+我们可以看到`onObservableStart()`方法返回的也是一个`onSubscribe`，后边的`call()`方法调用具体的业务逻辑。
 
 ```java
 public static <T> Observable.OnSubscribe<T> onObservableStart(Observable<T> instance, Observable.OnSubscribe<T> onSubscribe) {
@@ -263,7 +267,7 @@ public static <T> Observable.OnSubscribe<T> onObservableStart(Observable<T> inst
 ```
 这里`Func2<Observable, Observable.OnSubscribe, Observable.OnSubscribe> f`是一个入参`Observable, Observable.OnSubscribe`，出参`Observable.OnSubscribe`的变换方法，整个方法的作用在于，如果这里挂了`onObservableStart`方法，那么在执行onSubscribe的call方法之前需要先对其进行加工变换。
 
-RxJavaHooks类中静态方法调用了init方法，而init方法中定义了各个钩子
+稍微扩展看一下这个钩子，RxJavaHooks类中静态方法调用了init方法，而init方法中定义了各个钩子
 ```java
 static {
     init();
@@ -296,7 +300,8 @@ static void init() {
 这里`onObservableStart`钩子最终执行就是原样返回了`onsubScribe`给外层，所以最终在上文所述的核心代码处调用了onSubscribe.call()，从而调用了业务代码，在observable中调用了onNext、onError、onCompleted发送消息。
 
 ## onNext、onError、onCompleted
-在observable执行`subscriber.onNext("observable send message1");`发送消息的过程中可以通过debug跟进去看到他调用了SafeSubscriber的onNext方法
+
+在observable执行`subscriber.onNext("observable send message1");`发送消息的过程中可以通过debug跟进去看到他调用了SafeSubscriber的`onNext()`方法
 ```java
 @Override
 public void onNext(T args) {
@@ -311,7 +316,7 @@ public void onNext(T args) {
     }
 }
 ```
-而这里的 调用了`ObserverSubscriber.OnNext`
+而这里的 调用了`ObserverSubscriber.OnNext()`
 ```java
 @Override
 public void onNext(T t) {
@@ -320,7 +325,7 @@ public void onNext(T t) {
 ```
 从而最终调用到了业务代码中Observer的相关逻辑。
 
-调用逻辑理清了，那么我们来看下是什么时候把observer封装进去的。
+调用逻辑理清了，那么我们来反推下是什么时候把observer封装进去的。
 
 上文我们提到了在observer的核心subscribe方法中做了三件事，其中第二件事就是将传入的observer封装成一个SafeSubscriber，
 也就是执行了如下方法
@@ -330,6 +335,6 @@ public SafeSubscriber(Subscriber<? super T> actual) {
     this.actual = actual;
 }
 ```
-而ObserverSubscriber那一层是在执行
-可以看subscribe方法过程中封装的，可以查阅上文重载的subscribe方法中的第五个，传入Observer。可以看到最后封装了一层`return subscribe(new ObserverSubscriber<T>(observer));`
-因此这里的调用逻辑从外到里变成了SafeSubscriber->ObserverSubscriber->业务observer中的onNext方法。
+而传入SafeSubscriber的observer之前已经经历过一层封装，可以查阅上文重载的subscribe方法中的第五个，传入Observer。可以看到最后封装了一层`return subscribe(new ObserverSubscriber<T>(observer));`
+
+因此这里的调用逻辑从外到里就是SafeSubscriber->ObserverSubscriber->业务observer中的onNext方法。
