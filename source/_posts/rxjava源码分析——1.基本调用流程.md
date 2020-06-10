@@ -1,5 +1,5 @@
 ---
-title: rxjava源码分析——1.基础流程
+title: rxjava源码分析——1.基本调用流程
 date: 2020-06-09 11:01:54
 tags:
     - java
@@ -13,7 +13,7 @@ import rx.Observable;
 import rx.Observer;
 import rx.Subscriber;
 
-public class RxjavaTest {
+public class BaseTest {
     public static void main(String[] args) {
         Observer<String> observer = new Observer<String>() {
 
@@ -231,6 +231,8 @@ static <T> Subscription subscribe(Subscriber<? super T> subscriber, Observable<T
     ```
 `RxJavaHooks.onObservableStart(observable, observable.onSubscribe).call(subscriber);`的前半部分`RxJavaHooks.onObservableStart(observable, observable.onSubscribe)`返回的就是经过封装和处理的业务中的observable创建时传入的onSubscribe，后边的call方法即为调用业务逻辑中的相关call方法。
 
+`return RxJavaHooks.onObservableReturn(subscriber);`返回了一个`Subscribtion`，用于取消订阅主题，并不在核心的调用逻辑中。
+
 ## RxJavaHooks
 通过上边的分析我们可以看到核心的方法是通过RxJavaHooks触发的，下边我们会分析具体的触发流程。
 
@@ -327,8 +329,7 @@ public void onNext(T t) {
 
 调用逻辑理清了，那么我们来反推下是什么时候把observer封装进去的。
 
-上文我们提到了在observer的核心subscribe方法中做了三件事，其中第二件事就是将传入的observer封装成一个SafeSubscriber，
-也就是执行了如下方法
+上文我们提到了在observer的核心subscribe方法中做了三件事，其中第二件事就是将传入的observer封装成一个SafeSubscriber，也就是执行了如下方法
 ```java
 public SafeSubscriber(Subscriber<? super T> actual) {
     super(actual);
