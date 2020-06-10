@@ -159,7 +159,7 @@ public Observable<T> scalarScheduleOn(final Scheduler scheduler) {
     return create(new ScalarAsyncOnSubscribe<T>(t, onSchedule));
 }
 ```
-这里最后调用的`create()`方法就是[基本调用流程](https://xuchang-x.github.io/2020/06/09/rxjava%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E2%80%94%E2%80%941-%E5%9F%BA%E7%A1%80%E6%B5%81%E7%A8%8B/)中介绍业务代码中的`Observable.create()`方法，使用最终包装好的`ScalarAsyncOnSubscribe`创建Observable，回归到基本流程上。
+这里最后调用的`create()`方法就是[基本调用流程](https://xuchang-x.github.io/2020/06/09/rxjava%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E2%80%94%E2%80%941-%E5%9F%BA%E6%9C%AC%E8%B0%83%E7%94%A8%E6%B5%81%E7%A8%8B/)中介绍业务代码中的`Observable.create()`方法，使用最终包装好的`ScalarAsyncOnSubscribe`创建Observable，回归到基本流程上。
 
 而其中的包装过程分为两部分：
 1. 创建`onSchedule`，上述代码的`call()`方法(下称做封装call方法)中可以看到其将业务中的`onSubscribe.call()`方法(下称作业务call方法)封装在了`onSchedule.call`中，而封装的call方法通过`scheduler.createWorker()`这个线程中调用。而具体执行线程根据策略判断，这里我们scheduler选用的newThread策略，所以call方法会被封装到一个新线程中去调用。
