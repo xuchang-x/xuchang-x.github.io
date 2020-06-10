@@ -146,7 +146,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://xuchang-x.github.io/2020/06/09/rxjava%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E2%80%94%E2%80%941-%E5%9F%BA%E7%A1%80%E6%B5%81%E7%A8%8B/">
+    <link itemprop="mainEntityOfPage" href="https://xuchang-x.github.io/2020/06/10/rxjava%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E2%80%94%E2%80%942-scheduler%E5%AE%9E%E7%8E%B0%E7%BA%BF%E7%A8%8B%E5%88%87%E6%8D%A2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -160,7 +160,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2020/06/09/rxjava%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E2%80%94%E2%80%941-%E5%9F%BA%E7%A1%80%E6%B5%81%E7%A8%8B/" class="post-title-link" itemprop="url">rxjava源码分析——1.基础流程</a>
+            <a href="/2020/06/10/rxjava%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E2%80%94%E2%80%942-scheduler%E5%AE%9E%E7%8E%B0%E7%BA%BF%E7%A8%8B%E5%88%87%E6%8D%A2/" class="post-title-link" itemprop="url">rxjava源码分析——2.scheduler实现线程切换</a>
         </h2>
 
         <div class="post-meta">
@@ -171,8 +171,80 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-06-09 11:01:54 / 修改时间：16:45:45" itemprop="dateCreated datePublished" datetime="2020-06-09T11:01:54+08:00">2020-06-09</time>
+              <time title="创建时间：2020-06-10 10:37:38 / 修改时间：18:38:55" itemprop="dateCreated datePublished" datetime="2020-06-10T10:37:38+08:00">2020-06-10</time>
             </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>rxjava最重要的功能是他异步工作的能力，基于上一篇文章对rxjava基本调用流程的分析，本文对rxjava异步工作流程进行探讨。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/06/10/rxjava%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E2%80%94%E2%80%942-scheduler%E5%AE%9E%E7%8E%B0%E7%BA%BF%E7%A8%8B%E5%88%87%E6%8D%A2/">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://xuchang-x.github.io/2020/06/09/rxjava%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E2%80%94%E2%80%941-%E5%9F%BA%E6%9C%AC%E8%B0%83%E7%94%A8%E6%B5%81%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="于归君悦">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ChangChang的博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/06/09/rxjava%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E2%80%94%E2%80%941-%E5%9F%BA%E6%9C%AC%E8%B0%83%E7%94%A8%E6%B5%81%E7%A8%8B/" class="post-title-link" itemprop="url">rxjava源码分析——1.基本调用流程</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-06-09 11:01:54" itemprop="dateCreated datePublished" datetime="2020-06-09T11:01:54+08:00">2020-06-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-06-10 11:20:43" itemprop="dateModified" datetime="2020-06-10T11:20:43+08:00">2020-06-10</time>
+              </span>
 
           
 
@@ -188,7 +260,7 @@
           <p>最近学习的项目中使用了rxjava，其作为一个异步调用况下好像深得大家喜爱，不过其中的逻辑和调用关系好像并不是很好理解，涉及众多的回掉，后边还涉及到多线程的问题。这里参照网上各位大佬的教程和自己的学习方法逐渐深化的进行代码阅读并记录下相关过程，希望对各位有些帮助。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2020/06/09/rxjava%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E2%80%94%E2%80%941-%E5%9F%BA%E7%A1%80%E6%B5%81%E7%A8%8B/">
+              <a class="btn" href="/2020/06/09/rxjava%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E2%80%94%E2%80%941-%E5%9F%BA%E6%9C%AC%E8%B0%83%E7%94%A8%E6%B5%81%E7%A8%8B/">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -634,7 +706,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-count">7</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

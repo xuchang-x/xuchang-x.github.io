@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"xuchang-x.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="rxjava最重要的功能是他异步工作的能力，基于上一篇文章对rxjava基本调用流程的分析，本文对rxjava异步工作流程进行探讨。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="rxjava源码分析——2.scheduler实现线程切换">
+<meta property="og:url" content="https://xuchang-x.github.io/2020/06/10/rxjava%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E2%80%94%E2%80%942-scheduler%E5%AE%9E%E7%8E%B0%E7%BA%BF%E7%A8%8B%E5%88%87%E6%8D%A2/index.html">
+<meta property="og:site_name" content="ChangChang的博客">
+<meta property="og:description" content="rxjava最重要的功能是他异步工作的能力，基于上一篇文章对rxjava基本调用流程的分析，本文对rxjava异步工作流程进行探讨。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://xuchang-x.github.io/2020/06/10/rxjava%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E2%80%94%E2%80%942-scheduler%E5%AE%9E%E7%8E%B0%E7%BA%BF%E7%A8%8B%E5%88%87%E6%8D%A2/observeOn%E4%BD%9C%E7%94%A8%E8%8C%83%E5%9B%B4.jpg">
+<meta property="og:image" content="https://xuchang-x.github.io/2020/06/10/rxjava%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E2%80%94%E2%80%942-scheduler%E5%AE%9E%E7%8E%B0%E7%BA%BF%E7%A8%8B%E5%88%87%E6%8D%A2/subscribeOn%E4%BD%9C%E7%94%A8%E8%8C%83%E5%9B%B4.jpg">
+<meta property="og:image" content="https://xuchang-x.github.io/2020/06/10/rxjava%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E2%80%94%E2%80%942-scheduler%E5%AE%9E%E7%8E%B0%E7%BA%BF%E7%A8%8B%E5%88%87%E6%8D%A2/%E5%A4%9A%E4%B8%AA%E4%BD%9C%E7%94%A8%E8%8C%83%E5%9B%B4.jpg">
+<meta property="article:published_time" content="2020-06-10T02:37:38.000Z">
+<meta property="article:modified_time" content="2020-06-10T10:38:55.274Z">
+<meta property="article:author" content="于归君悦">
+<meta property="article:tag" content="java">
+<meta property="article:tag" content="rxjava">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://xuchang-x.github.io/2020/06/10/rxjava%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E2%80%94%E2%80%942-scheduler%E5%AE%9E%E7%8E%B0%E7%BA%BF%E7%A8%8B%E5%88%87%E6%8D%A2/observeOn%E4%BD%9C%E7%94%A8%E8%8C%83%E5%9B%B4.jpg">
+
+<link rel="canonical" href="https://xuchang-x.github.io/2020/06/10/rxjava%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E2%80%94%E2%80%942-scheduler%E5%AE%9E%E7%8E%B0%E7%BA%BF%E7%A8%8B%E5%88%87%E6%8D%A2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>rxjava源码分析——2.scheduler实现线程切换 | ChangChang的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ChangChang的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://xuchang-x.github.io/2020/06/10/rxjava%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E2%80%94%E2%80%942-scheduler%E5%AE%9E%E7%8E%B0%E7%BA%BF%E7%A8%8B%E5%88%87%E6%8D%A2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="于归君悦">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ChangChang的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          rxjava源码分析——2.scheduler实现线程切换
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-06-10 10:37:38 / 修改时间：18:38:55" itemprop="dateCreated datePublished" datetime="2020-06-10T10:37:38+08:00">2020-06-10</time>
+            </span>
+
+          
+            <div class="post-description">rxjava最重要的功能是他异步工作的能力，基于上一篇文章对rxjava基本调用流程的分析，本文对rxjava异步工作流程进行探讨。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>同上篇一样，我们这里先给出一个demo，后文基于这个demo进行分析。</p>
+<h1 id="demo"><a href="#demo" class="headerlink" title="demo"></a>demo</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> article;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> rx.Observable;</span><br><span class="line"><span class="keyword">import</span> rx.schedulers.Schedulers;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AsyncTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> <span class="keyword">int</span> observerId = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Observable&lt;String&gt; observable1 = buildTimeConsumingObserver(<span class="number">2000</span>);</span><br><span class="line">        Observable&lt;String&gt; observable2 = buildTimeConsumingObserver(<span class="number">3000</span>);</span><br><span class="line">        </span><br><span class="line">        Long start = System.currentTimeMillis();</span><br><span class="line">        observable1.subscribe(onNext-&gt; System.out.format(<span class="string">"\nobserver receive onNext:\n\tmessage: %s\n"</span>, onNext));</span><br><span class="line">        observable2.subscribe(onNext-&gt; System.out.format(<span class="string">"\nobserver receive onNext:\n\tmessage: %s\n"</span>, onNext));</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">3000</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        Long end = System.currentTimeMillis();</span><br><span class="line">        System.out.format(<span class="string">"用时%dms"</span>, end - start);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> Observable&lt;String&gt; <span class="title">buildTimeConsumingObserver</span><span class="params">(<span class="keyword">int</span> waitMs)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> id = observerId++;</span><br><span class="line">        <span class="keyword">return</span> Observable.just(<span class="number">1</span>).observeOn(Schedulers.newThread()).map(integer -&gt; &#123;</span><br><span class="line">            System.out.println(<span class="string">"observable "</span> + id + <span class="string">" begin"</span>);</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                Thread.sleep(waitMs);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(<span class="string">"observable "</span> + id + <span class="string">" finish"</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="string">"observable "</span> + id + <span class="string">" send message2, waited "</span> + waitMs + <span class="string">" ms"</span>;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行结果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">observable 1 begin</span><br><span class="line">observable 2 begin</span><br><span class="line">observable 1 finish</span><br><span class="line"></span><br><span class="line">observer receive onNext:</span><br><span class="line">	message: observable 1 send message2, waited 2000 ms</span><br><span class="line">observable 2 finish</span><br><span class="line"></span><br><span class="line">observer receive onNext:</span><br><span class="line">	message: observable 2 send message2, waited 3000 ms</span><br><span class="line"></span><br><span class="line">observer receive onCompleted</span><br><span class="line">用时3029ms</span><br></pre></td></tr></table></figure>
+<p>首先可以看到这里共用了3s左右，小于串行的5s，说明两个任务是在不同线程运行的了。</p>
+<p>下边说明一些问题：</p>
+<ol>
+<li><p>切换线程的两个方法<code>observeOn()</code>、<code>subscribeOn()</code>是observable的实例方法而非类方法，这里的考虑在于方便后续多次切换线程时的链式调用，但同时也导致了一个问题就是没办法在<code>Observable.create()</code>之前指定scheduler，所以这里先通过<code>just()</code>方法创建了一个observable，又通过他的实例方法进一步做了耗时操作。</p>
+<ul>
+<li><code>just()</code>方法本身底层就是create一个observable并发出相关消息，这个在其他的文章中再做探讨。</li>
+</ul>
+</li>
+<li><p>main方法中的<code>Thread.sleep(3000);</code>主要是为了等新启动的两个线程输出结果后主线程再结束，这里如果不等的话会出现主线程已经结束了，子线程还没完成任务，这时候在控制台就看不到完整的输出。</p>
+</li>
+<li><p>这里main方法中的<code>Thread.sleep(3000);</code>可以换一种写法</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Long start = System.currentTimeMillis();</span><br><span class="line">Observable.merge(observable1, observable2).toBlocking().subscribe(onNext -&gt; System.out.format(<span class="string">"\nobserver receive onNext:\n\tmessage: %s\n"</span>, onNext),</span><br><span class="line">        onError -&gt; &#123;</span><br><span class="line">            System.out.format(<span class="string">"\nobserver receive onError:\n\tmessage: %s\n\tstackTrace: \n"</span>, onError.getMessage());</span><br><span class="line">            onError.printStackTrace();</span><br><span class="line">        &#125;, () -&gt; System.out.format(<span class="string">"\nobserver receive onCompleted\n"</span>));</span><br><span class="line">Long end = System.currentTimeMillis();</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>首先调用<code>merge()</code>方法将两个Observable合并成一个，这个过程中并不影响他们<code>observeOn()</code>方法在新启动线程上完成的操作。<code>merge()</code>方法本身并不在这里讨论，会再其他文章中再做说明。</p>
+</li>
+<li><p><code>toBlocking()</code>将一个普通的Observable转化成BlockingObservable，内部使用CountDownLatch实现阻塞操作。</p>
+</li>
+</ul>
+</li>
+</ol>
+<h1 id="observeOn切换线程"><a href="#observeOn切换线程" class="headerlink" title="observeOn切换线程"></a>observeOn切换线程</h1><p>这里<code>observeOn(Schedulers.newThread())</code>方法分两部分</p>
+<h2 id="Schedulers-newThread"><a href="#Schedulers-newThread" class="headerlink" title="Schedulers.newThread()"></a>Schedulers.newThread()</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Scheduler <span class="title">newThread</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> RxJavaHooks.onNewThreadScheduler(getInstance().newThreadScheduler);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里进入Schedulers类中可以看到</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Schedulers</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Scheduler computationScheduler;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Scheduler ioScheduler;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Scheduler newThreadScheduler;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里分三种线程调度器，计算型、io型和启动新线程类型，这里对scheduler的细节暂时不做讨论，这里引用的是<code>newThreadScheduler</code></p>
+<h2 id="observeOn"><a href="#observeOn" class="headerlink" title="observeOn"></a>observeOn</h2><p>点击进入<code>observeOn()</code>方法可以看到该方法也有四个重载方法，这里调用的是</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> Observable&lt;T&gt; <span class="title">observeOn</span><span class="params">(Scheduler scheduler)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> observeOn(scheduler, RxRingBuffer.SIZE);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其他两个分别是带有 参数的，最终都调用了</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> Observable&lt;T&gt; <span class="title">observeOn</span><span class="params">(Scheduler scheduler, <span class="keyword">boolean</span> delayError, <span class="keyword">int</span> bufferSize)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span> <span class="keyword">instanceof</span> ScalarSynchronousObservable) &#123;</span><br><span class="line">        <span class="keyword">return</span> ((ScalarSynchronousObservable&lt;T&gt;)<span class="keyword">this</span>).scalarScheduleOn(scheduler);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> lift(<span class="keyword">new</span> OperatorObserveOn&lt;T&gt;(scheduler, delayError, bufferSize));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当涉及到<code>delayError</code>时会调用<code>lift()</code>方法进行变换操作，当前是一个单纯发送消息的Observer，走了<code>instanceof ScalarSynchronousObservable</code>分支。</p>
+<p><em>TODO:</em> 后续看多种subject过程中应该会涉及到这里的<code>lift()</code>方法，后续补充。</p>
+<p>当前分支调用方法核心如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Observable&lt;T&gt; <span class="title">scalarScheduleOn</span><span class="params">(<span class="keyword">final</span> Scheduler scheduler)</span> </span>&#123;</span><br><span class="line">    Func1&lt;Action0, Subscription&gt; onSchedule;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    onSchedule = <span class="keyword">new</span> Func1&lt;Action0, Subscription&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> Subscription <span class="title">call</span><span class="params">(<span class="keyword">final</span> Action0 a)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">final</span> Scheduler.Worker w = scheduler.createWorker();</span><br><span class="line">            w.schedule(<span class="keyword">new</span> Action0() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">call</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        a.call();</span><br><span class="line">                    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                        w.unsubscribe();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">            <span class="keyword">return</span> w;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> create(<span class="keyword">new</span> ScalarAsyncOnSubscribe&lt;T&gt;(t, onSchedule));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里最后调用的<code>create()</code>方法就是<a href="https://xuchang-x.github.io/2020/06/09/rxjava%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E2%80%94%E2%80%941-%E5%9F%BA%E7%A1%80%E6%B5%81%E7%A8%8B/">基本调用流程</a>中介绍业务代码中的<code>Observable.create()</code>方法，使用最终包装好的<code>ScalarAsyncOnSubscribe</code>创建Observable，回归到基本流程上。</p>
+<p>而其中的包装过程分为两部分：</p>
+<ol>
+<li><p>创建<code>onSchedule</code>，上述代码的<code>call()</code>方法(下称做封装call方法)中可以看到其将业务中的<code>onSubscribe.call()</code>方法(下称作业务call方法)封装在了<code>onSchedule.call</code>中，而封装的call方法通过<code>scheduler.createWorker()</code>这个线程中调用。而具体执行线程根据策略判断，这里我们scheduler选用的newThread策略，所以call方法会被封装到一个新线程中去调用。</p>
+</li>
+<li><p><code>new ScalarAsyncOnSubscribe&lt;T&gt;(t, onSchedule)</code>将<code>onSchedule</code>再次封装成一个<code>onObservable</code></p>
+</li>
+</ol>
+<p>因此这里再调用通过如下逻辑onSchedule-&gt;根据<code>scheduler.createWorker()</code>策略选择调用线程-&gt;调用worker中的<code>call()</code>方法-&gt;<code>调用onObservable.call()</code>中的业务代码-&gt;触发<code>observer.call()</code>。</p>
+<p><em>TODO:</em> 这里调用过程中走的肯定和单纯的observable不一样，后续还需要细化</p>
+<h1 id="subscribeOn"><a href="#subscribeOn" class="headerlink" title="subscribeOn"></a>subscribeOn</h1><p><code>subscribeOn()</code>方法和<code>observeOn()</code>方法类似，都用于控制线程，不同的是<code>observeOn()</code>控制的是<code>observable</code>的工作线程，而<code>subscribeOn()</code>是控制的<code>observer</code>的工作线程。</p>
+<p>同时，两个方法控制的范围不同<code>observeOn()</code>控制调用链接在该方法后的方法，而<code>subscribeOn()</code>控制其之前的一段调用方法。</p>
+<p>observeOn：<br><img src="observeOn%E4%BD%9C%E7%94%A8%E8%8C%83%E5%9B%B4.jpg" alt="observeOn作用范围"><br>subscribeOn：<br><img src="subscribeOn%E4%BD%9C%E7%94%A8%E8%8C%83%E5%9B%B4.jpg" alt="subscribeOn作用范围"></p>
+<p>根据上边的特性，<code>observeOn()</code>两个连续调用以后边的为准，<code>subscribeOn()</code>两个连续调用以前边的为准。</p>
+<p><img src="%E5%A4%9A%E4%B8%AA%E4%BD%9C%E7%94%A8%E8%8C%83%E5%9B%B4.jpg" alt="多个作用范围"></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/java/" rel="tag"># java</a>
+              <a href="/tags/rxjava/" rel="tag"># rxjava</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/06/09/rxjava%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E2%80%94%E2%80%941-%E5%9F%BA%E6%9C%AC%E8%B0%83%E7%94%A8%E6%B5%81%E7%A8%8B/" rel="prev" title="rxjava源码分析——1.基本调用流程">
+      <i class="fa fa-chevron-left"></i> rxjava源码分析——1.基本调用流程
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#demo"><span class="nav-number">1.</span> <span class="nav-text">demo</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#observeOn切换线程"><span class="nav-number">2.</span> <span class="nav-text">observeOn切换线程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Schedulers-newThread"><span class="nav-number">2.1.</span> <span class="nav-text">Schedulers.newThread()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#observeOn"><span class="nav-number">2.2.</span> <span class="nav-text">observeOn</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#subscribeOn"><span class="nav-number">3.</span> <span class="nav-text">subscribeOn</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">于归君悦</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">于归君悦</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
