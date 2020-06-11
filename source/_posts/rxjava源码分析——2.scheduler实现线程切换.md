@@ -118,7 +118,7 @@ public final Observable<T> observeOn(Scheduler scheduler) {
     return observeOn(scheduler, RxRingBuffer.SIZE);
 }
 ```
-其他两个分别是带有 参数的，最终都调用了
+其他两个分别是带有delayError、bufferSize参数的，最终都调用了
 ```java
 public final Observable<T> observeOn(Scheduler scheduler, boolean delayError, int bufferSize) {
     if (this instanceof ScalarSynchronousObservable) {
