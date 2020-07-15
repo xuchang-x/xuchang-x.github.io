@@ -158,61 +158,61 @@ public final Subscription subscribe(Subscriber<? super T> subscriber) {
 最后调用到核心的subscribe方法，如下：
 ```java
 static <T> Subscription subscribe(Subscriber<? super T> subscriber, Observable<T> observable) {
-     // validate and proceed
-        if (subscriber == null) {
-            throw new IllegalArgumentException("subscriber can not be null");
-        }
-        if (observable.onSubscribe == null) {
-            throw new IllegalStateException("onSubscribe function can not be null.");
-            /*
-             * the subscribe function can also be overridden but generally that's not the appropriate approach
-             * so I won't mention that in the exception
-             */
-        }
-
-        // new Subscriber so onStart it
-        subscriber.onStart();
-
-        /*
-         * See https://github.com/ReactiveX/RxJava/issues/216 for discussion on "Guideline 6.4: Protect calls
-         * to user code from within an Observer"
-         */
-        // if not already wrapped
-        if (!(subscriber instanceof SafeSubscriber)) {
-            // assign to `observer` so we return the protected version
-            subscriber = new SafeSubscriber<T>(subscriber);
-        }
-
-        // The code below is exactly the same an unsafeSubscribe but not used because it would
-        // add a significant depth to already huge call stacks.
-        try {
-            // allow the hook to intercept and/or decorate
-            RxJavaHooks.onObservableStart(observable, observable.onSubscribe).call(subscriber);
-            return RxJavaHooks.onObservableReturn(subscriber);
-        } catch (Throwable e) {
-            // special handling for certain Throwable/Error/Exception types
-            Exceptions.throwIfFatal(e);
-            // in case the subscriber can't listen to exceptions anymore
-            if (subscriber.isUnsubscribed()) {
-                RxJavaHooks.onError(RxJavaHooks.onObservableError(e));
-            } else {
-                // if an unhandled error occurs executing the onSubscribe we will propagate it
-                try {
-                    subscriber.onError(RxJavaHooks.onObservableError(e));
-                } catch (Throwable e2) {
-                    Exceptions.throwIfFatal(e2);
-                    // if this happens it means the onError itself failed (perhaps an invalid function implementation)
-                    // so we are unable to propagate the error correctly and will just throw
-                    RuntimeException r = new OnErrorFailedException("Error occurred attempting to subscribe [" + e.getMessage() + "] and then again while trying to pass to onError.", e2);
-                    // TODO could the hook be the cause of the error in the on error handling.
-                    RxJavaHooks.onObservableError(r);
-                    // TODO why aren't we throwing the hook's return value.
-                    throw r; // NOPMD
-                }
-            }
-            return Subscriptions.unsubscribed();
-        }
+ // validate and proceed
+    if (subscriber == null) {
+        throw new IllegalArgumentException("subscriber can not be null");
     }
+    if (observable.onSubscribe == null) {
+        throw new IllegalStateException("onSubscribe function can not be null.");
+        /*
+         * the subscribe function can also be overridden but generally that's not the appropriate approach
+         * so I won't mention that in the exception
+         */
+    }
+
+    // new Subscriber so onStart it
+    subscriber.onStart();
+
+    /*
+     * See https://github.com/ReactiveX/RxJava/issues/216 for discussion on "Guideline 6.4: Protect calls
+     * to user code from within an Observer"
+     */
+    // if not already wrapped
+    if (!(subscriber instanceof SafeSubscriber)) {
+        // assign to `observer` so we return the protected version
+        subscriber = new SafeSubscriber<T>(subscriber);
+    }
+
+    // The code below is exactly the same an unsafeSubscribe but not used because it would
+    // add a significant depth to already huge call stacks.
+    try {
+        // allow the hook to intercept and/or decorate
+        RxJavaHooks.onObservableStart(observable, observable.onSubscribe).call(subscriber);
+        return RxJavaHooks.onObservableReturn(subscriber);
+    } catch (Throwable e) {
+        // special handling for certain Throwable/Error/Exception types
+        Exceptions.throwIfFatal(e);
+        // in case the subscriber can't listen to exceptions anymore
+        if (subscriber.isUnsubscribed()) {
+            RxJavaHooks.onError(RxJavaHooks.onObservableError(e));
+        } else {
+            // if an unhandled error occurs executing the onSubscribe we will propagate it
+            try {
+                subscriber.onError(RxJavaHooks.onObservableError(e));
+            } catch (Throwable e2) {
+                Exceptions.throwIfFatal(e2);
+                // if this happens it means the onError itself failed (perhaps an invalid function implementation)
+                // so we are unable to propagate the error correctly and will just throw
+                RuntimeException r = new OnErrorFailedException("Error occurred attempting to subscribe [" + e.getMessage() + "] and then again while trying to pass to onError.", e2);
+                // TODO could the hook be the cause of the error in the on error handling.
+                RxJavaHooks.onObservableError(r);
+                // TODO why aren't we throwing the hook's return value.
+                throw r; // NOPMD
+            }
+        }
+        return Subscriptions.unsubscribed();
+    }
+}
 ```
 这里去除掉检查异常部分主要完成了三个工作：
 1. 调取`subscriber.onStart();`这个方法是subscriber比observer多的方法，在核心方法开始之前触发。这里demo中用的是observer，这个方法中并没有任何操作。
