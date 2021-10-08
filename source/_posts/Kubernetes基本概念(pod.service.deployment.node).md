@@ -30,7 +30,6 @@ Deployment指挥Kubernetes 如何创建和更新应用程序的实例。
 ![deployment](deploy.svg)
 也就是说，deployment是在master节点上的配置信息
 
-
 # node
 工作节点，Kubernetes中的参与计算的机器，可以是虚拟机或物理计算机，具体取决于集群。
 ![node](node.svg)
