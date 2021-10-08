@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"xuchang-x.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="《clean code》中对一些代码中坏味道（bad smell）的总结，在编写代码的过程中应该多注意不要出现列表中的问题，使代码具有更高的可读性。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="代码整洁之道——坏味道">
+<meta property="og:url" content="https://xuchang-x.github.io/2020/10/19/%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93%E2%80%94%E2%80%94%E5%9D%8F%E5%91%B3%E9%81%93/index.html">
+<meta property="og:site_name" content="ChangChang的博客">
+<meta property="og:description" content="《clean code》中对一些代码中坏味道（bad smell）的总结，在编写代码的过程中应该多注意不要出现列表中的问题，使代码具有更高的可读性。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-10-19T07:36:00.000Z">
+<meta property="article:modified_time" content="2020-11-25T09:20:02.309Z">
+<meta property="article:author" content="于归君悦">
+<meta property="article:tag" content="代码整洁之道">
+<meta property="article:tag" content="clean code">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://xuchang-x.github.io/2020/10/19/%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93%E2%80%94%E2%80%94%E5%9D%8F%E5%91%B3%E9%81%93/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>代码整洁之道——坏味道 | ChangChang的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ChangChang的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://xuchang-x.github.io/2020/10/19/%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93%E2%80%94%E2%80%94%E5%9D%8F%E5%91%B3%E9%81%93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="于归君悦">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ChangChang的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          代码整洁之道——坏味道
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-10-19 15:36:00" itemprop="dateCreated datePublished" datetime="2020-10-19T15:36:00+08:00">2020-10-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-11-25 17:20:02" itemprop="dateModified" datetime="2020-11-25T17:20:02+08:00">2020-11-25</time>
+              </span>
+
+          
+            <div class="post-description">《clean code》中对一些代码中坏味道（bad smell）的总结，在编写代码的过程中应该多注意不要出现列表中的问题，使代码具有更高的可读性。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h1><ol>
+<li>需要多步才能做到的环境<ul>
+<li>构建系统应该可以用单个命令运行，其本身应该是单步的小操作，但不应该依赖一系列指令或环境依赖脚本，不应该到处寻找额外的jar、xml等。</li>
+</ul>
+</li>
+<li>需要多步才能做到的测试<ul>
+<li>测试应该可以快速运行</li>
+</ul>
+</li>
+</ol>
+<h1 id="JAVA"><a href="#JAVA" class="headerlink" title="JAVA"></a>JAVA</h1><ol>
+<li>不要继承常量，而应该使用静态导入。在某个接口中放置了常量，在深层级继承类中使用会很困惑这些常量的来源。</li>
+<li>减少常量的使用，更多的使用枚举类。</li>
+</ol>
+<h1 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h1><ol>
+<li>过多的参数</li>
+<li>输出参数违反直觉，与函数命名不符</li>
+<li>标识函数，通过布尔值在函数中做多个功能，这类函数违反单一权责原则</li>
+<li>死函数（永远不会被调用的函数）</li>
+</ol>
+<h1 id="名称"><a href="#名称" class="headerlink" title="名称"></a>名称</h1><ol>
+<li>采用描述性名称</li>
+<li>名称应与抽象层级相符</li>
+<li>尽可能使用标准命名法。如采用装饰器模式，就该以Decorator结尾</li>
+<li>使用没有歧义的名称</li>
+<li>为较大作用范围选用较长的名称。如for循环中<code>for(i)</code>，如果循环体中逻辑复杂，应该选用有意义的命名</li>
+<li>避免编码。不应在名称中包括类型或作用范围信息。</li>
+<li>名称应说明带来的副作用。也就是应该准确的描述其实现的所有功能。</li>
+</ol>
+<h1 id="注释"><a href="#注释" class="headerlink" title="注释"></a>注释</h1><ol>
+<li>不恰当的信息，如作者、修改历史等信息</li>
+<li>废弃的注释</li>
+<li>冗余注释，用解释一段可以充分自我解释的代码，那么注释就是多余的</li>
+<li>糟糕的注释，注释应该足够简洁，甄字酌句。</li>
+<li>注释掉的代码</li>
+</ol>
+<h1 id="一般性问题"><a href="#一般性问题" class="headerlink" title="一般性问题"></a>一般性问题</h1><ol>
+<li>一个源文件中存在多种语言。如java中包括XML、HTML、YAML等。</li>
+<li>理应被实现的行为未被实现。如将日期翻译成该日期的枚举类，我们希望Monday可以翻译，也希望缩写可以翻译，同时还希望忽略大小写。如果以上的功能没能实现，用户就需要阅读代码细节而不是依靠对函数名的直觉。</li>
+<li>不正确的边界行为。不要依赖直觉，未各种边界条件编写测试，确定函数确实符合预期。</li>
+<li>忽视安全。不要关闭测试然后告诉自己过后处理。</li>
+<li>重复。DRY原则（Don’t Repeat Yourself，别重复自己）。</li>
+<li>在错误的抽象层级上的代码，如细节实现有关的常量、变量或工具函数不应在基类中出现。这个原则对源文件、组件和模块也适用，不同层级对概念应该分离到不同的容器中。</li>
+<li>基类依赖与派生类。基类概念不应该依赖较底层派生类的概念。</li>
+<li>信息过多。一个类中的方法越少越好，一个函数知道的变量越少越好。</li>
+<li>死代码（不执行的代码）。</li>
+<li>垂直分隔。 变量和函数应该在靠近被使用的地方定义。</li>
+<li>前后不一致。</li>
+<li>混淆视听。比如没有用的变量、从不调用的函数、没有用的注释和一切应该移除的代码。</li>
+<li>人为耦合。不相互依赖的东西不该耦合，一般人为耦合的根源是将变量、常量或函数不恰当地放在临时方便的位置。</li>
+<li>特性依赖。类的方法应该只对其所属类的变量和函数感兴趣感兴趣，不应该访问其他类中的变量和函数。</li>
+<li>选择算子参数。不要在函数中使用标识位（布尔、枚举、整数等等）。</li>
+<li>晦涩的意图。代码应该尽可能具有表达力。</li>
+<li>位置错误的权责。仔细考虑代码应该放在哪里，深入思考类、函数和变量的命名，避免误解。</li>
+<li>不恰当的静态方法。通常应倾向于选用非静态方法，如果拿不准应该使用哪一种，那么就选用非静态方法。</li>
+<li>使用解释性变量。让程序可读的最有力的方式之一就是将计算过程打散，并通过有意义的单词命名中间值。</li>
+<li>函数名称应该表达其行为。如果必须通过查看实现或文档才能知道函数是做什么的，那就应该换个更好的函数名。</li>
+<li>理解算法。在实现某个函数前应该深入理解它工作的方式，通过全部测试只是最低要求，应该用优雅的方式实现，而不是if-else的堆砌。</li>
+<li>把逻辑依赖改为物理依赖。如果某个模块依赖另一个模块，那就应该通过调用该模块方法的方式查询相关信息，而不是直接调用该模块中的某些数据结构。</li>
+<li>用多态替代If/Else和Switch/Case</li>
+<li>遵循标准约定。如团队中的标准。</li>
+<li>用命名常量替代魔术数（难以理解的符号）。</li>
+<li>准确。比如第一次匹配不等于唯一匹配、浮点数不能直接用在货币计算上、某些行为应该使用事务等等，编写代码应该在恰当的位置使用准确的方式。</li>
+<li>结构强于约定。比如用到良好命名的Switch/Case要若愚拥有抽象方法的基类。没人强迫每次一同样的方式实现Switch/Case，但实现类中必须实现基类中的方法。</li>
+<li>封装条件。如布尔条件难以理解，应该把解释了条件意图的函数抽离出来。</li>
+<li>避免否定性条件。尽可能将条件表达式表示为肯定形式。</li>
+<li>函数只该做一件事</li>
+<li>掩蔽时序耦合。需要按序调用的函数应该让调用次序显而易见，每个函数都传出下一个函数所需的结果，这样一来就没理由不按顺序调用了。</li>
+<li>别随意。代码的组织和构建（如方法应该放在哪个类中）需要理由，不要随意堆砌。</li>
+<li>封装边界条件。边界条件难以追踪，把边界条件的代码集中到一处，不要散落在代码中。</li>
+<li>函数应该只在一个抽象层级上。函数中的语句应该在同一抽象层级上，不要混淆层级。</li>
+<li>在较高层级放置可配置数据</li>
+<li>避免传递浏览。模块应该只了解其直接协作者，而不是整个系统的游览图。</li>
+</ol>
+<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><ol>
+<li>避免测试不足</li>
+<li>使用覆盖率工具</li>
+<li>不要略过小测试</li>
+<li>被忽略的测试就是对不确定事务的疑问</li>
+<li>全面测试边界条件</li>
+<li>全面测试相近的缺陷。缺陷趋向于扎堆，在某个函数中发现一个缺陷时，最好全面测试那个函数。</li>
+<li>测试应该快速</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93/" rel="tag"># 代码整洁之道</a>
+              <a href="/tags/clean-code/" rel="tag"># clean code</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/09/20/%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93%E2%80%94%E2%80%94%E7%B3%BB%E7%BB%9F%E6%90%AD%E5%BB%BA%E5%8E%9F%E5%88%99/" rel="prev" title="代码整洁之道——系统搭建原则">
+      <i class="fa fa-chevron-left"></i> 代码整洁之道——系统搭建原则
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/05/11/Java%E5%BC%82%E5%B8%B8%E4%BF%A1%E6%81%AF%E6%B5%81%E8%BD%AC/" rel="next" title="Java异常信息流转">
+      Java异常信息流转 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#环境"><span class="nav-number">1.</span> <span class="nav-text">环境</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JAVA"><span class="nav-number">2.</span> <span class="nav-text">JAVA</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#函数"><span class="nav-number">3.</span> <span class="nav-text">函数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#名称"><span class="nav-number">4.</span> <span class="nav-text">名称</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#注释"><span class="nav-number">5.</span> <span class="nav-text">注释</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一般性问题"><span class="nav-number">6.</span> <span class="nav-text">一般性问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#测试"><span class="nav-number">7.</span> <span class="nav-text">测试</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">于归君悦</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">于归君悦</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"xuchang-x.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="《Serverless入门课》学习笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Serverless学习笔记">
+<meta property="og:url" content="https://xuchang-x.github.io/2021/05/20/Serverless%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="ChangChang的博客">
+<meta property="og:description" content="《Serverless入门课》学习笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://xuchang-x.github.io/2021/05/20/Serverless%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Servless%E5%AE%9A%E4%B9%89.png">
+<meta property="og:image" content="https://xuchang-x.github.io/2021/05/20/Serverless%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/FaaS%E7%BB%93%E6%9E%84.png">
+<meta property="og:image" content="https://xuchang-x.github.io/2021/05/20/Serverless%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/FaaS%E4%B8%A4%E7%A7%8D%E8%BF%9B%E7%A8%8B%E6%A8%A1%E5%9E%8B.png">
+<meta property="og:image" content="https://xuchang-x.github.io/2021/05/20/Serverless%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/BaaS%E7%BB%93%E6%9E%84.png">
+<meta property="og:image" content="https://xuchang-x.github.io/2021/05/20/Serverless%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/SFF%E7%BB%93%E6%9E%84.png">
+<meta property="og:image" content="https://xuchang-x.github.io/2021/05/20/Serverless%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/%E7%BA%B5%E5%90%91%E6%89%A9%E5%AE%B9&%E6%A8%AA%E5%90%91%E6%89%A9%E5%AE%B9.png">
+<meta property="og:image" content="https://xuchang-x.github.io/2021/05/20/Serverless%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/XaaS.png">
+<meta property="article:published_time" content="2021-05-20T10:09:23.000Z">
+<meta property="article:modified_time" content="2021-10-08T03:59:12.220Z">
+<meta property="article:author" content="于归君悦">
+<meta property="article:tag" content="学习笔记">
+<meta property="article:tag" content="Serverless">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://xuchang-x.github.io/2021/05/20/Serverless%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/Servless%E5%AE%9A%E4%B9%89.png">
+
+<link rel="canonical" href="https://xuchang-x.github.io/2021/05/20/Serverless%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Serverless学习笔记 | ChangChang的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ChangChang的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://xuchang-x.github.io/2021/05/20/Serverless%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="于归君悦">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ChangChang的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Serverless学习笔记
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-05-20 18:09:23" itemprop="dateCreated datePublished" datetime="2021-05-20T18:09:23+08:00">2021-05-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-10-08 11:59:12" itemprop="dateModified" datetime="2021-10-08T11:59:12+08:00">2021-10-08</time>
+              </span>
+
+          
+            <div class="post-description">《Serverless入门课》学习笔记</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Serveless"><a href="#Serveless" class="headerlink" title="Serveless"></a>Serveless</h1><p>Serveless的含义是服务端免运维。</p>
+<ul>
+<li>server限定Serverless解决问题的边界，即服务端运维。</li>
+<li>less表明Serverless解决问题的目的，即免运维NoOps。通过全知全能的服务，覆盖研发部署需要的所有需求，从而减少研发人员对服务运维的感知。</li>
+</ul>
+<p>狭义上的Serverless = Serverless computing架构 = FaaS架构 = Trigger（事件驱动）+ FaaS（函数即服务）+ BaaS（后端即服务，持久化或第三方服务）= FaaS + BaaS<br><img src="Servless%E5%AE%9A%E4%B9%89.png" alt="Servless定义.png"></p>
+<p>广义Serverless = 服务端免运维 = 具备Serverless特性的云服务</p>
+<ol>
+<li>无需用户关心服务端的事情（容错、容灾、安全验证、自动扩缩容、日志调试等等)。</li>
+<li>按使用量（调用次数、时长等）付费，低费用和高性能并行，大多数场景下节省开支。</li>
+<li>快速迭代&amp;试错能力（多版本控制，灰度，CI&amp;CD等等）。</li>
+</ol>
+<h2 id="优势"><a href="#优势" class="headerlink" title="优势"></a>优势</h2><p>第一是降低服务成本，尤其是降低长尾应用的资源消耗。在为服务架构下，每个长尾应用都需要占用独立的虚拟机。<br>第二在于提高研发效能，SFF（Serverless For Frontend）可以让前端同学自行负责数据接口的编排，微服务BaaS化则让我们的后端同学更加关注领域设计。</p>
+<h1 id="FaaS"><a href="#FaaS" class="headerlink" title="FaaS"></a>FaaS</h1><p>FaaS（Function as a Service）函数即服务，也称作Serverless Computing。我们可以通过FasS随时随地创建、使用、销毁一个函数。</p>
+<h2 id="创建过程"><a href="#创建过程" class="headerlink" title="创建过程"></a>创建过程</h2><p>通常函数的使用过程需要先从代码加载到内存，也就是实例化，然后被其它函数调用时执行。FaaS同样，函数需要实例化，然后被触发器Trigger或者被其他的函数调用。<br>二者最大的区别就是在Runtime，也就是函数的上下文。FaaS的Runtime是预先设置好的，其中加载的函数和资源都是云服务商提供的，我们可以使用却无法控制，函数调用完后这个临时Runtime和函数一起销毁。<br><img src="FaaS%E7%BB%93%E6%9E%84.png" alt="FaaS结构.png"></p>
+<p>这里引出一个问题，FaaS的官方Runtime无法支持业务需求要依赖特殊的函数库或二进制包，而且像Java等语言在代码包较大的情况下，FaaS启动速度很慢。<br>当我们遇到FaaS无法解决的场景，我们就可以考虑下沉一层，使用FaaS的底层支撑技术Docker容器。Docker可以将应用代码和代码依赖的Runtime一起打包成一个Docker镜像。这个镜像可以在云上、自己的笔记本电脑、同事的电脑上运行，完全不用担心环境依赖的问题，因为应用的依赖也打包在一起了。</p>
+<h2 id="访问过程"><a href="#访问过程" class="headerlink" title="访问过程"></a>访问过程</h2><p>用户第一次访问HTTP函数触发器时，函数触发器会Hold住用户的HTTP请求，并产生一个HTTP Request事件通知函数服务。<br>函数服务检查有没有闲置的函数实例，如果没有函数实例，就去函数代码仓库中拉取代码，初始化并启动一个函数实例，传入这个HTTP Request对象作为函数的参数，执行函数。<br>再进一步，函数执行的结果HTTP Response返回函数触发器，函数触发器再将结果返回给客户端。</p>
+<h2 id="处理持久化数据"><a href="#处理持久化数据" class="headerlink" title="处理持久化数据"></a>处理持久化数据</h2><p>以MySQL为例，后端服务最好是将FaaS操作的数据库的命令，封装成HTTP的OpenAPI，提供给FaaS调用，自己控制这个API的请求频率以及限流降级。而后端服务本身则可以通过连接池、MySQL集群等方式去优化。</p>
+<h2 id="冷启动"><a href="#冷启动" class="headerlink" title="冷启动"></a>冷启动</h2><p>冷启动本来是PC上的概念，它是指关闭电源后，PC再启动仍然需要重新加载BIOS表，也就是从硬件驱动开始启动，因此启动速度很慢。<br>现在的云服务商线上物理服务器断电重启几乎是不太可能的。FaaS中的冷启动是指从调用函数开始到函数实例准备完成的整个过程，需要100～700毫秒的冷启动时间。<br>一旦更新代码，云服务商就会开始调度资源，下载代码构建函数实例的镜像。请求第一次访问时，云服务商就可以利用构建好的缓存镜像，直接跳过冷启动的下载函数代码步骤，从镜像启动容器，这个也叫预热冷启动。<br>如果我们有些业务场景对响应时间比较敏感，我们就可以通过预热冷启动或预留实例策略，加速或绕过冷启动时间。</p>
+<h2 id="优势-1"><a href="#优势-1" class="headerlink" title="优势"></a>优势</h2><p>FaaS与应用托管PaaS平台对比，最大的区别在于资源利用率，这也是FaaS最大的创新点。FaaS的应用实例可以缩容到0，而应用托管PaaS平台则至少要维持1台服务器或容器。<br>函数在第一次调用之前，实际的服务器占用为0。直到用户第一次HTTP数据请求过来时，函数服务才被HTTP事件触发，启动函数实例。没有用户请求时，函数服务没有任何的函数实例，也就不占用任何的服务器资源。而应用托管PaaS平台，创建应用实例的过程通常需要几十秒，为了保证你的服务可用性，必须一直维持着至少一台服务器运行你的应用实例。</p>
+<h1 id="FaaS函数类型分类"><a href="#FaaS函数类型分类" class="headerlink" title="FaaS函数类型分类"></a>FaaS函数类型分类</h1><p>用完即毁型：函数实例准备好后，执行完函数就直接结束。这是FaaS最纯正的用法。<br>常驻进程型：函数实例准备好后，执行完函数不结束，而是返回继续等待下一次函数被调用。这里需要注意，即使FaaS是常驻进程型，如果一段时间没有事件触发，函数实例还是会被云服务商销毁。<br><img src="FaaS%E4%B8%A4%E7%A7%8D%E8%BF%9B%E7%A8%8B%E6%A8%A1%E5%9E%8B.png" alt="FaaS两种进程模型.png"></p>
+<h2 id="数据编排"><a href="#数据编排" class="headerlink" title="数据编排"></a>数据编排</h2><p>目前最广泛的设计模式就是MVC模式。随着前端MVVM框架越来越火，前端View层逐渐前置，发展成SPA单页应用；后端Control和Model层逐渐下沉，发展成面向服务编程的后端应用。<br>这种情况下，前后端更加彻底地解耦，前端开发可以依赖Mock数据接口完全脱离后端限制，而后端的同学则可以面向数据接口开发，但这也产生了高网络I/O的数据网关层。<br>因此诞生了Node.js的BFF层(Backend For Frontend)，将后端数据和后端接口编排，适配成前端需要的数据结构，提供给前端使用。<br><img src="BaaS%E7%BB%93%E6%9E%84.png" alt="BaaS结构.png"><br>因为BFF层只是做无状态的数据编排，所以我们完全可以用FaaS用完即毁型模型替换掉BFF层的Node.js应用，也就是最近圈子里老说的那个新名词SFF（Serverless For Frontend）。<br><img src="SFF%E7%BB%93%E6%9E%84.png" alt="SFF结构.png"></p>
+<h2 id="服务编排"><a href="#服务编排" class="headerlink" title="服务编排"></a>服务编排</h2><p>服务编排和数据编排很像，主要区别是对云服务商提供的各种服务进行组合和加工。<br>FaaS拓展了我们可以使用SDK边界，其最大一个亮点就是语言无关性，支持使用不同的编程语言实现不同的函数，再通过编排组装在一起。</p>
+<h1 id="快速扩容"><a href="#快速扩容" class="headerlink" title="快速扩容"></a>快速扩容</h1><h2 id="Stateful-amp-Stateless"><a href="#Stateful-amp-Stateless" class="headerlink" title="Stateful &amp; Stateless"></a>Stateful &amp; Stateless</h2><p>网络拓扑中的节点，我们可以根据是否保存状态分为Stateful和Stateless。<br>Stateful是有状态的节点，用来保存状态、存储数据，因此Stateful节点我们需要额外关注，需要保障稳定性，不能轻易改动。<br>Stateless是无状态的节点，Stateless不存储任何状态，或者只能短暂存储不可靠的部分数据。<br>Stateless节点没有任何状态，因此在并发量高的时候，我们可以对Stateless节点横向扩容，而没有流量时可以缩容到0。Stateful节点则不行，如果面对流量峰值峰谷的流量差比较大时，我们要按峰值去设计Stateful节点来抗住高流量，没有流量时我们也要维持开销。如果我们的网络拓扑节点想自由扩缩容，则需要将这个节点的数据操作外移到专门的Stateful节点。</p>
+<h2 id="纵向扩缩容-amp-横向扩缩容"><a href="#纵向扩缩容-amp-横向扩缩容" class="headerlink" title="纵向扩缩容 &amp; 横向扩缩容"></a>纵向扩缩容 &amp; 横向扩缩容</h2><p>纵向扩缩容就是提升单机性能，价格上升曲线陡峭，我们通常要慎重选择；横向扩缩容就是提升机器数量，价格上升平稳，也是我们常用的扩缩容方式。<br><img src="%E7%BA%B5%E5%90%91%E6%89%A9%E5%AE%B9&%E6%A8%AA%E5%90%91%E6%89%A9%E5%AE%B9.png" alt="纵向扩容&amp;横向扩容.png"><br>回到进程模型，用完即毁型是天然的Stateless，因为它执行完就销毁，无法单纯用它持久化存储任何值；常驻进程型则是天然的Stateful，因为它的主进程不退出，主进程可以存储部分值。</p>
+<h1 id="后端BaaS化"><a href="#后端BaaS化" class="headerlink" title="后端BaaS化"></a>后端BaaS化</h1><p>关于FaaS访问Stateful节点的方式，我们希望Stateful节点对FaaS提供数据接口，而不是单纯指令。以数据库为例，数据库连接会增加FaaS的额外开支。同时为了方便后端工程师开发，我们需要将Stateful节点BaaS化</p>
+<h2 id="解耦数据库"><a href="#解耦数据库" class="headerlink" title="解耦数据库"></a>解耦数据库</h2><p>解耦数据库的核心就是让数据启动时，可以更新到最新的数据库。在其中一个数据库更新时，通知另外一个数据库更新。<br>这里引出一个关键的Stateful对象：消息队列。它是一个稳定的绝对值得信赖的Stateful节点，而且对应用来说消息队列是全局唯一的。我们可以通过消息队列解决数据库和副本之间的同步问题。</p>
+<h2 id="领域驱动设计拆解微服务"><a href="#领域驱动设计拆解微服务" class="headerlink" title="领域驱动设计拆解微服务"></a>领域驱动设计拆解微服务</h2><p>DDD（领域驱动设计）是一套方法论：通过对业务分层抽象，分析定义出领域模型，用领域模型驱动设计系统，最终将复杂业务模型拆解为独立运维的领域模型。<br>我们应该思考的是如何整体优化动态网络：减少核心节点，保护核心节点，降低网络深度等等。<br>无需在项目启动初期太过纠结应该如何去拆解微服务，而应该持续关注并思考每个微服务节点的合理性。像看待动态网络一样，持续地调整优化，去除核心节点，最终伴随业务的发展阶段，达到各个阶段的稳定动态网络结构。</p>
+<h2 id="工作流合并服务数据"><a href="#工作流合并服务数据" class="headerlink" title="工作流合并服务数据"></a>工作流合并服务数据</h2><p>拆解后的架构是个动态网络，如何合并或者编排呢？<br>可以像SFF那样通过传统的函数，将每个HTTP数据的请求结果通过数组或对象加工处理，再将这些结果返回。<br>也可以通过工作流的方式进行编排。将用户的请求想象成我们的呼吸系统，我们的肺就是SFF，而微服务和FaaS节点就是需要氧气的各个器官。我们吸一口气，氧气进入肺部，血液循环将氧气按顺序流经我们每个器官，这就是请求链路。每个器官一接收到新鲜血液，就会吸取氧气返回二氧化碳，最终血液循环将二氧化碳带到肺部呼出，这个就是数据返回链路。我们的各个器官，就被请求链路通过新鲜血液到来的这个事件串联起来了，这个就是事件流，也就是用一个个事件去串联FaaS或微服务。</p>
+<h1 id="附-XaaS"><a href="#附-XaaS" class="headerlink" title="附 XaaS"></a>附 XaaS</h1><p><img src="XaaS.png" alt="XaaS"><br>SaaS(软件即服务(Software as a Service))</p>
+<p>PaaS(平台即服务(Platform as a Service))</p>
+<p>IaaS(基础设施即服务(Infrastructure as a Service))</p>
+<p>CaaS(容器即服务(Containers as a Service))</p>
+<p>FaaS(方法即服务(Functions as a Service))</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag"># 学习笔记</a>
+              <a href="/tags/Serverless/" rel="tag"># Serverless</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/05/11/Java%E5%BC%82%E5%B8%B8%E4%BF%A1%E6%81%AF%E6%B5%81%E8%BD%AC/" rel="prev" title="Java异常信息流转">
+      <i class="fa fa-chevron-left"></i> Java异常信息流转
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Serveless"><span class="nav-number">1.</span> <span class="nav-text">Serveless</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#优势"><span class="nav-number">1.1.</span> <span class="nav-text">优势</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#FaaS"><span class="nav-number">2.</span> <span class="nav-text">FaaS</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#创建过程"><span class="nav-number">2.1.</span> <span class="nav-text">创建过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#访问过程"><span class="nav-number">2.2.</span> <span class="nav-text">访问过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#处理持久化数据"><span class="nav-number">2.3.</span> <span class="nav-text">处理持久化数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#冷启动"><span class="nav-number">2.4.</span> <span class="nav-text">冷启动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#优势-1"><span class="nav-number">2.5.</span> <span class="nav-text">优势</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#FaaS函数类型分类"><span class="nav-number">3.</span> <span class="nav-text">FaaS函数类型分类</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#数据编排"><span class="nav-number">3.1.</span> <span class="nav-text">数据编排</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#服务编排"><span class="nav-number">3.2.</span> <span class="nav-text">服务编排</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#快速扩容"><span class="nav-number">4.</span> <span class="nav-text">快速扩容</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Stateful-amp-Stateless"><span class="nav-number">4.1.</span> <span class="nav-text">Stateful &amp; Stateless</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#纵向扩缩容-amp-横向扩缩容"><span class="nav-number">4.2.</span> <span class="nav-text">纵向扩缩容 &amp; 横向扩缩容</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后端BaaS化"><span class="nav-number">5.</span> <span class="nav-text">后端BaaS化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#解耦数据库"><span class="nav-number">5.1.</span> <span class="nav-text">解耦数据库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#领域驱动设计拆解微服务"><span class="nav-number">5.2.</span> <span class="nav-text">领域驱动设计拆解微服务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#工作流合并服务数据"><span class="nav-number">5.3.</span> <span class="nav-text">工作流合并服务数据</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#附-XaaS"><span class="nav-number">6.</span> <span class="nav-text">附 XaaS</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">于归君悦</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">于归君悦</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

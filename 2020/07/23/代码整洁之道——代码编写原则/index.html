@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"xuchang-x.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="《clean code》中编写代码中比较通用的代码编写原则，遵循这些原则能够大大增加我们代码的可读性，有助于代码后期维护和交接。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="代码整洁之道——代码编写原则">
+<meta property="og:url" content="https://xuchang-x.github.io/2020/07/23/%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93%E2%80%94%E2%80%94%E4%BB%A3%E7%A0%81%E7%BC%96%E5%86%99%E5%8E%9F%E5%88%99/index.html">
+<meta property="og:site_name" content="ChangChang的博客">
+<meta property="og:description" content="《clean code》中编写代码中比较通用的代码编写原则，遵循这些原则能够大大增加我们代码的可读性，有助于代码后期维护和交接。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://xuchang-x.github.io/2020/07/23/%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93%E2%80%94%E2%80%94%E4%BB%A3%E7%A0%81%E7%BC%96%E5%86%99%E5%8E%9F%E5%88%99/%E7%94%9F%E4%BA%A7%E5%8A%9B%20vs%20%E6%97%B6%E9%97%B4.jpg">
+<meta property="article:published_time" content="2020-07-23T07:27:00.000Z">
+<meta property="article:modified_time" content="2020-11-25T08:58:48.342Z">
+<meta property="article:author" content="于归君悦">
+<meta property="article:tag" content="代码整洁之道">
+<meta property="article:tag" content="clean code">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://xuchang-x.github.io/2020/07/23/%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93%E2%80%94%E2%80%94%E4%BB%A3%E7%A0%81%E7%BC%96%E5%86%99%E5%8E%9F%E5%88%99/%E7%94%9F%E4%BA%A7%E5%8A%9B%20vs%20%E6%97%B6%E9%97%B4.jpg">
+
+<link rel="canonical" href="https://xuchang-x.github.io/2020/07/23/%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93%E2%80%94%E2%80%94%E4%BB%A3%E7%A0%81%E7%BC%96%E5%86%99%E5%8E%9F%E5%88%99/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>代码整洁之道——代码编写原则 | ChangChang的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ChangChang的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://xuchang-x.github.io/2020/07/23/%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93%E2%80%94%E2%80%94%E4%BB%A3%E7%A0%81%E7%BC%96%E5%86%99%E5%8E%9F%E5%88%99/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="于归君悦">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ChangChang的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          代码整洁之道——代码编写原则
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-07-23 15:27:00" itemprop="dateCreated datePublished" datetime="2020-07-23T15:27:00+08:00">2020-07-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-11-25 16:58:48" itemprop="dateModified" datetime="2020-11-25T16:58:48+08:00">2020-11-25</time>
+              </span>
+
+          
+            <div class="post-description">《clean code》中编写代码中比较通用的代码编写原则，遵循这些原则能够大大增加我们代码的可读性，有助于代码后期维护和交接。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="整洁代码的意义"><a href="#整洁代码的意义" class="headerlink" title="整洁代码的意义"></a>整洁代码的意义</h1><p>随着脏代码增加，团队生产力持续下降趋向于零。当生产力下降时，管理层就只有增加更多忍受到项目中，期望提升生产力。可是新人并不熟悉系统的设计，搞不清楚什么样的修改符合设计意图，什么样的修改违背设计意图。于是他们制造更多的混乱，生产力向零的那端不断下降。<br><img src="%E7%94%9F%E4%BA%A7%E5%8A%9B%20vs%20%E6%97%B6%E9%97%B4.jpg" alt="整洁代码意义"></p>
+<h1 id="命名原则"><a href="#命名原则" class="headerlink" title="命名原则"></a>命名原则</h1><ol>
+<li>核心原则：采用有意义的命名，使变量名具有自解释性。</li>
+<li>使用有意义命名<ul>
+<li>使用有意义的单词作为变量名，避免使用A、b、c、D这种表意不明的名称。</li>
+<li>使用相关业务领域方案中的名称进行命名。</li>
+<li>即使是循环体中的i（for循环中的下标变量），如果涉及到的范围大，循环体比较大，也应该给i一个更有意义的命名。</li>
+<li>使用意义明确的命名，如方法genymdhms（生成年月日时分秒）实际希望表达的意义是生成时间戳，可以使用genTimestamp代替。</li>
+<li>使用正式的书面用语。</li>
+<li>使用可搜索的名称，比如用到常量5的地方，如果希望表达一周有五天这个含义，可以抽取一个常量WORK_DAYS_PER_WEEK=5。</li>
+<li>可以添加有意义的语境。</li>
+<li>减少无意义的词汇：比如NameString，使用Name作为变量名即可。</li>
+</ul>
+</li>
+<li>避免使用有误导意义的名称<ul>
+<li>不要使用专有名词，如UNIX平台中的hp、aix、sco是有特指意义的。</li>
+<li>不要用有特殊意义的词汇，比如只有当变量本身是一个List时候才能用List做结尾，如accountList（参照IDEA的自动命名，只有其本身是List时会加List后缀）。</li>
+<li>业务领域名词前后使用一致，如”榜单”，如果使用rank表意榜单，那么整个项目中都应该使用rank，不要同时使用rank、board等类似意义的单词。</li>
+<li>不要使用具有双关意义的命名。</li>
+<li>注意区分以下字符：<ul>
+<li>小写字母l和数字1</li>
+<li>大写字母O和数字0</li>
+</ul>
+</li>
+<li>不同用途尽量体现差异，如不要使用<code>getActiveAccount()</code>、<code>getActiveAccountInfo()</code>、<code>getActiveAccounts()</code>作为不同场景下获取账号的函数命名，而应该在函数名中明确区分这些场景。</li>
+</ul>
+</li>
+<li>避免编码命名方式（多是C语言对名称长度有限制时留下的习惯）<ul>
+<li>避免匈牙利语标记法，即避免使用标记变量类型、用途的前后缀。</li>
+<li>避免成员前缀，如m_等。</li>
+<li>接口和实现，接口不需要加前缀，如IXxFactory可以直接命名为xXFactory。</li>
+</ul>
+</li>
+<li>单词使用<ul>
+<li>类名应使用名次或名词短语。</li>
+<li>方法名应使用动词或动词短语。</li>
+</ul>
+</li>
+</ol>
+<h1 id="注释原则"><a href="#注释原则" class="headerlink" title="注释原则"></a>注释原则</h1><p>首先需要明确一点：注释用于补充解释无法自解释的的代码，如果代码能做到自解释是无需注释的。注释并不能美化糟糕的代码，我们应该尽量用代码来阐述其本身的意义。</p>
+<ul>
+<li>好的注释：<ol>
+<li>法律信息，如©copyright</li>
+<li>提供信息的注释<ul>
+<li>解释某个抽象方法的返回值，把一些难懂的参数返回值注释成可读的形式</li>
+<li>解释某段代码（如for循环）的用途</li>
+<li>警示：提示某些代码的重要性或需要特别注意的点，提示方法某些看起来不合理地方的重要性。</li>
+<li>TODO：提示代码中遗留的问题。TODO注释应解释本次为什么无法实现，将来应该是怎样。同时需要定期查看，删除不再需要的TODO。</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>坏的注释<ol>
+<li>多余的注释<ul>
+<li>没有意义，比如只有作者自己能懂的注释、单纯为了标记代码中某个位置的注释、注释掉的代码。</li>
+<li>不能比代码提供更多的信息的注释，如无关的细节描述、用来描述函数功能的注释（描述函数功能可以为函数起一个好名字）。</li>
+<li>不如代码精确，反而可能提供错误的信息的注释。</li>
+<li>括号后面的注释。这种注释在嵌套层数深的长函数会有意义，但这种长函数应该拆分成更易读的小函数。</li>
+<li>不要写系统级信息（如http使用8080端口）</li>
+</ul>
+</li>
+<li>误导性注释<ul>
+<li>功能性的误导，如果读者更信赖注释，读了注释之后不再读代码，反而会得到错误的信息。</li>
+<li>对象指代误导，注释里对象指代要清楚。</li>
+<li>对应关系误导，注释只描述离它最近的代码</li>
+</ul>
+</li>
+<li>循规式注释<ul>
+<li>要求每个函数都有Javadoc一样的说明性注释是没必要的。尤其是非公共代码中的Javadoc，Javadoc对公共API非常有用，但是不打算公开对代码没必要写这种注释。</li>
+<li>记录每次代码修改日志的注释是没必要的</li>
+<li>代码归属与署名，首先代码的编写者可以通过git看到。同时随着代码被修改，署名会越来越不准确。</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+<h1 id="代码格式"><a href="#代码格式" class="headerlink" title="代码格式"></a>代码格式</h1><p>团队代码规则永远高于个人喜好，下边会介绍一些比较通用的格式规则。</p>
+<ul>
+<li>垂直格式<ol>
+<li>整体规划<ul>
+<li>单个文件应在200行左右，最长不超过500行</li>
+<li>最顶部给出高层次概念和算法，细节往下逐次展开。</li>
+<li>整体名称简单一目了然， 由许多篇文章组成，多数短小精悍</li>
+<li>实体变量应该在类的顶部声明</li>
+<li>变量声明应尽可能靠近其使用位置</li>
+<li>本地变量应该在函数的顶部出现</li>
+</ul>
+</li>
+<li>垂直距离上规划<ul>
+<li>概念相关的代码应该放在一起，相关性越强距离越短。</li>
+<li>调用者尽可能放在被调用者上边（python无法实现）。</li>
+<li>同一函数中也可以有垂直方向上的区隔，每组代码行展示一条完整的思路，这些代码组之间用空白行隔开。</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>横向格式<ol>
+<li>整体规划<ul>
+<li>单行代码尽量小于80个字符，不要超过120个字符</li>
+</ul>
+</li>
+<li>水平距离规划（自己定义的水平分隔基本用不上，因为代码格式化时候就都消失了（比如idea里command + option + L））<ul>
+<li>赋值操作左右添加空格</li>
+<li>函数名和左括号之间不加空格</li>
+<li>参数间一一隔开</li>
+<li>缩进：通过缩进模式，看代码行左侧就可以知道自己在什么范围中工作，从而快速跳过与当前情形无关的范围。即使是小的if、while循环或小函数也不要违反缩进规则写在一行。</li>
+</ul>
+</li>
+<li>禁止用空范围代码<ul>
+<li><code>while(blabla);</code></li>
+<li><code>for(blabla);</code></li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+<h1 id="对象和数据结构"><a href="#对象和数据结构" class="headerlink" title="对象和数据结构"></a>对象和数据结构</h1><ol>
+<li>对象和数据结构概念对比<ul>
+<li>对象把数据隐藏于抽象之后，暴露操作数据的函数。</li>
+<li>数据结构暴露其数据，不提供有意义的函数。</li>
+<li>函数式编程便于在不改动既有数据结构的前提下增加新函数；面向对象编程便于在不改动既有函数的前提下添加新类。</li>
+<li>函数式编程难以添加新数据结构，因为必须修改所有函数；面向对象编程难以添加新函数，因为必须修改改所有类。</li>
+</ul>
+</li>
+<li>数据抽象<ul>
+<li>抽象层的作用是屏蔽用户无需感知的实现逻辑，使用户可以直接操作相关数据。</li>
+<li>隐藏实现并非只是在变量之间放上一个函数层，单纯的增加getter、setter是最坏的方式。</li>
+</ul>
+</li>
+<li>得墨忒耳定律：模块不应了解他所操作对象的内部情形，主要有以下三条原则：<ul>
+<li>火车失事：一连串的调用，看起来就像是一列火车，应该避免。如<code>final String outputDir = ctxt.getOptions().getScratchir().getAbsolutePath();</code>，这种问题一般源于过深的对象层级，可以将获取每一层级的对象拆分出来。</li>
+<li>混杂：访问对象属性，有执行函数（封装了部分逻辑的数据访问函数），有公共变量，也有公共变量的getter和setter。</li>
+<li>隐藏结构：应该将访问底层数据结构封装到执行函数中，从而隐藏内部结构，防止当前函数浏览他不需要知道的对象。</li>
+</ul>
+</li>
+<li>数据传输对象——DTO（Data Transfer Object）<ul>
+<li>只有公共变量，没有函数的类，多用于与数据库或套接字传输消息场景。</li>
+<li>IMPORTANT: 不要向DTO中添加业务逻辑。</li>
+</ul>
+</li>
+</ol>
+<h1 id="函数原则"><a href="#函数原则" class="headerlink" title="函数原则"></a>函数原则</h1><ol>
+<li>功能设计<ul>
+<li>函数应该只做一件事<ul>
+<li>函数要么做一件事，要么回答一个问题，也就是说函数应该修改某对象的状态，或者是返回对象有关的信息，两者不应该混在一起。</li>
+</ul>
+</li>
+<li>函数应该只涉及自己抽象层级的业务逻辑，便于自顶向下读代码的阅读习惯<pre><code>- 以返回HTML页面为例，每子自函数组装一个模块，最外层函数组装整个页面。</code></pre></li>
+<li>结构化编程，每个函数应该有一个入口一个出口<ul>
+<li>这个规则对于短小的函数帮助不大，但对于大函数应该严格遵守。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>编写原则<ul>
+<li>减少重复，相同功能的代码抽成函数进行统一维护。</li>
+<li>函数应该尽量短小，不要超过20行，每行不超过150个字符。<ul>
+<li>switch语句应该隐藏在factory模式中。</li>
+</ul>
+</li>
+<li>代码块和缩进，函数的缩进层尽量在两层以内，更易于阅读和理解。</li>
+<li>减少函数入参<ul>
+<li>最理想的是没有参数的函数，其次是一个参数，再次是两个参数，应该尽量避免三个参数的函数。有足够特殊的理由才能使用三个以上的参数。</li>
+<li>超过三个参数说明其中一些参数需要封装成类比如圆心的横纵坐标应该抽象为一个Point（点）类。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>命名原则<ul>
+<li>使用描述性函数名，增加相关功能或相关语境，尽量准确的表明函数功能。</li>
+<li>函数中某些功能只有特定情况下才会用到，应该在函数名中有所体现，从而保证函数名和功能完全一致，避免在错误的地方使用函数造成副作用。</li>
+</ul>
+</li>
+<li>异常处理方式<ul>
+<li>使用抛出异常的方式处理，不要使用返回错误码的方式。</li>
+<li>抽离try-catch代码块，try-catch处理异常作为单独的功能应该抽离成一个函数，主函数中不应有处理异常流程。</li>
+</ul>
+</li>
+</ol>
+<h1 id="类的原则"><a href="#类的原则" class="headerlink" title="类的原则"></a>类的原则</h1><ol>
+<li>短小<ul>
+<li>我们通过计算权责（提供的函数功能）来计算一个类的大小，构造一个短小的类应当满足单一权责原则，即类或模块应该有且只有一条加以修改的理由。</li>
+<li>系统应由许多短小的类组成而不是几个功能复杂的类。每个小类封装一个权责，只有一个修改的原因，并与少数其他类一起协同达成期望的系统行为。</li>
+</ul>
+</li>
+<li>高内聚性<ul>
+<li>类的名称应该描述其权责，大概25个单词，如果无法精确命名说明类的权责过多</li>
+<li>类应该只有少量实体变量</li>
+<li>保证类中函数的短小及参数列表短小</li>
+<li>保持内聚性就会得到许多短小的类，重构方式如下：<ol>
+<li>一个拥有许多变量的大函数</li>
+<li>拆分成单独的函数，其中使用的共同的变量，需要在多个函数中分别声明</li>
+<li>将这些变量提升为类的实体变量</li>
+<li>类丧失了内聚性，越来越多的实体变量只为其中几个函数使用</li>
+<li>拆分类</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>面向修改<br>多数系统在构建过程中会不断修改，每一处修改都让我们冒着系统其它部分不能正常工作的风险。在整洁的系统中，我们对类加以阻止以降低修改的风险。<ul>
+<li>每个类都只负责一种权责，将每个类中的代码都变得极为简单，降低理解成本，同时降低函数对其他函数造成的破坏风险。</li>
+<li>隔离修改</li>
+</ul>
+</li>
+<li>类的组织方式，自顶向下结构如下：<ul>
+<li>变量列表<ul>
+<li>公共静态常量</li>
+<li>私有静态变量</li>
+<li>私有实体变量</li>
+<li>公共变量（应该很少）</li>
+</ul>
+</li>
+<li>公共函数<ul>
+<li>被某个公共函数调用的私有函数应该紧随气候</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h1 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h1><ol>
+<li><h1 id="代码编写"><a href="#代码编写" class="headerlink" title="代码编写"></a>代码编写</h1><ul>
+<li>异常处理是单独的一件事，不应混杂在业务代码中。</li>
+<li>先写try-catch-finally语句块，后续可以用测试驱动方法构建剩余的代码逻辑。</li>
+<li>null值<ul>
+<li>不要返回null值，返回null值会大大增加其他代码的判断逻辑，可以返回空集合or空对象</li>
+<li>不要传递null值，除非API要求传递null值，否则应该尽可能避免。</li>
+</ul>
+</li>
+<li>封装第三方代码库，减少在代码各个位置对第三方库抛出异常的捕获，从而减小耦合度，便于切换到其他库。</li>
+</ul>
+</li>
+<li>处理方式<ul>
+<li>定义异常处理流程<ul>
+<li>常规异常应该在各个需要的地方抛出，在代码顶端定义一个处理一统一处理。</li>
+<li>需要业务处理的异常可以封装成特例特例对象进行返回，在业务代码中处理，从而减少上层逻辑对异常的判断负担。</li>
+</ul>
+</li>
+<li>给出异常发生的环境说明，抛出的每个异常都应该提供足够的环境说明，以便判断异常的来源和处所。stack track可以得出异常的来源，同时应该打印message，表明出现异常的原因。</li>
+<li>使用不可控异常（运行时异常）。Java中的可控异常并非高稳定性软件所必须，同时它破坏了开闭原则，如果底层新抛出一种异常类型，则整个函数调用路径中都要增加向上一层抛出这个异常。</li>
+<li>使用异常处理方式，不要使用异常返回码的方式。</li>
+</ul>
+</li>
+</ol>
+<h1 id="并发编程"><a href="#并发编程" class="headerlink" title="并发编程"></a>并发编程</h1><p>对象是过程的抽象，线程是调度的抽象。并发是一种解耦策略，他把我们做什么（目的）和何时做（时机）分开</p>
+<ol>
+<li>防御原则<ul>
+<li>单一权责原则。分离并发相关代码与其他代码。</li>
+<li>限制数据作用域。缩小synchronized保护使用共享对象的临界区，synchronized保护临界区越大成本越高。</li>
+<li>使用数据复本。每个线程使用独立的副本，避免共享数据，从而避免多线程间交互问题。</li>
+<li>线程应尽可能的独立。尝试将数据分解到可被独立线程（可能在不同处理器上）操作的独立子集，减少线程见交互。</li>
+</ul>
+</li>
+<li>代码编写<ul>
+<li>相关Java库，java.util.concurrent。</li>
+<li>减少同步方法之间的依赖，避免使用一个共享对象的多个方法。</li>
+<li>保持同步区域微小，锁会带来延迟和额外开销。</li>
+<li>尽早考虑线程关闭问题，死锁等问题会比想象中难得多。</li>
+<li>使用多余处理器数量的线程，同时使用可调整的线程数量代码</li>
+</ul>
+</li>
+<li>相关测试<ul>
+<li>编写涉及到多线程模块的测试，在不同的编程配置、系统配置和负载条件下频繁运行。如果测试失败，跟踪错误，不要因为后来测试通过忽略之前的失败，这样的伪失败可能是线程问题。</li>
+<li>先使非线程代码可工作</li>
+</ul>
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93/" rel="tag"># 代码整洁之道</a>
+              <a href="/tags/clean-code/" rel="tag"># clean code</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/07/17/mac-homebrew-%E9%85%8D%E7%BD%AE%E5%9B%BD%E5%86%85%E6%95%B0%E6%8D%AE%E6%BA%90-homebrew-update/" rel="prev" title="mac homebrew 配置国内数据源 & homebrew update">
+      <i class="fa fa-chevron-left"></i> mac homebrew 配置国内数据源 & homebrew update
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/09/20/%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93%E2%80%94%E2%80%94%E7%B3%BB%E7%BB%9F%E6%90%AD%E5%BB%BA%E5%8E%9F%E5%88%99/" rel="next" title="代码整洁之道——系统搭建原则">
+      代码整洁之道——系统搭建原则 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#整洁代码的意义"><span class="nav-number">1.</span> <span class="nav-text">整洁代码的意义</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#命名原则"><span class="nav-number">2.</span> <span class="nav-text">命名原则</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#注释原则"><span class="nav-number">3.</span> <span class="nav-text">注释原则</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码格式"><span class="nav-number">4.</span> <span class="nav-text">代码格式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#对象和数据结构"><span class="nav-number">5.</span> <span class="nav-text">对象和数据结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#函数原则"><span class="nav-number">6.</span> <span class="nav-text">函数原则</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#类的原则"><span class="nav-number">7.</span> <span class="nav-text">类的原则</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#异常处理"><span class="nav-number">8.</span> <span class="nav-text">异常处理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码编写"><span class="nav-number">9.</span> <span class="nav-text">代码编写</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#并发编程"><span class="nav-number">10.</span> <span class="nav-text">并发编程</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">于归君悦</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">于归君悦</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
