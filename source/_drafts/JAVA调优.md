@@ -126,7 +126,7 @@ Web 容器线程池的设置以及 Linux 操作系统的内核参数设置不合
 
 # 字符串性能优化
 ## String实现方式
-![String实现方式](source/_drafts/JAVA调优drafts/JAVA调优/String实现方式.jpeg)
+![String实现方式](JAVA调优/String实现方式.jpeg)
 1.在Java6以及之前的版本中，String对象是对char数组进行了封装实现的对象，主要有四个成员变量：char数组、偏移量offset、字符数量count、哈希值hash。
 
 String对象是通过offset和count两个属性来定位char[]数组，获取字符串。这么做可以高效、快速地共享数组对象，同时节省内存空间，但这种方式很有可能会导致内存泄漏。
@@ -139,4 +139,61 @@ String对象是通过offset和count两个属性来定位char[]数组，获取字
 而新属性coder的作用是，在计算字符串长度或者使用indexOf（）函数时，我们需要根据这个字段，判断如何计算字符串长度。coder属性默认有0和1两个值，0代表Latin-1（单字节编码），1代表UTF-16。如果String判断字符串只包含了Latin-1，则coder属性值为0，反之则为1。
 
 ## String对象的不可变性
+
+Java这样做的好处在哪里呢？
+
+第一，保证String对象的安全性。假设String对象是可变的，那么String对象将可能被恶意修改。
+
+第二，保证hash属性值不会频繁变更，确保了唯一性，使得类似HashMap容器才能实现相应的key-value缓存功能。
+
+第三，可以实现字符串常量池。在Java中，通常有两种创建字符串对象的方式，一种是通过字符串常量的方式创建，如String str=“abc”；另一种是字符串变量通过new形式的创建，如String str = new String(“abc”)。
+
+在Java中要比较两个对象是否相等，往往是用==，而要判断两个对象的值是否相等，则需要用equals方法来判断。
+
+这是因为str只是String对象的引用，并不是对象本身。对象在内存中是一块内存地址，str则是一个指向该内存地址的引用。所以在刚刚我们说的这个例子中，第一次赋值的时候，创建了一个“hello”对象，str引用指向“hello”地址；第二次赋值的时候，又重新创建了一个对象“world”，str引用指向了“world”，但“hello”对象依然存在于内存中。
+
+也就是说str并不是对象，而只是一个对象引用。真正的对象依然还在内存中，没有被改变。
+
+## String引用方式
+
+```java
+public static void main(String[] args) {
+        String a = "asd";
+        String b = "asd";
+        String c = new String("asd");
+        
+        System.out.println(a == b);         // true
+        System.out.println(a.equals(b));    // true
+        System.out.println(a == c);         // false
+        System.out.println(a.equals(c));    // true
+    }
+```
+![String引用.png](JAVA调优/String引用.png)
+
+在字符串常量中，默认会将对象放入常量池；在字符串变量中，对象是会创建在堆内存中，同时也会在常量池中创建一个字符串对象，String对象中的char数组将会引用常量池中的char数组，并返回堆内存对象引用。
+
+
+## 使用String.intern节省内存？
+如果调用intern方法，会去查看字符串常量池中是否有等于该对象的字符串的引用，如果没有，在JDK1.6版本中会复制堆中的字符串到常量池中，并返回该字符串引用，堆内存中原有的字符串由于没有引用指向它，将会通过垃圾回收器回收。
+
+
+
+## 构建大字符串
+编程过程中，字符串的拼接很常见。前面我讲过String对象是不可变的，如果我们使用String对象相加，拼接我们想要的字符串，是不是就会产生多个对象呢？例如以下代码：
+
+String str= "ab" + "cd" + "ef";
+分析代码可知：首先会生成ab对象，再生成abcd对象，最后生成abcdef对象，从理论上来说，这段代码是低效的。
+
+但实际运行中，我们发现只有一个对象生成，这是为什么呢？难道我们的理论判断错了？我们再来看编译后的代码，你会发现编译器自动优化了这行代码，如下：
+
+String str= "abcdef";
+上面我介绍的是字符串常量的累计，我们再来看看字符串变量的累计又是怎样的呢？
+
+综上已知：即使使用+号作为字符串的拼接，也一样可以被编译器优化成StringBuilder的方式。但再细致些，你会发现在编译器优化的代码中，每次循环都会生成一个新的StringBuilder实例，同样也会降低系统的性能。
+
+所以平时做字符串拼接的时候，我建议你还是要显示地使用String Builder来提升系统性能。
+
+如果在多线程编程中，String对象的拼接涉及到线程安全，你可以使用StringBuffer。但是要注意，由于StringBuffer是线程安全的，涉及到锁竞争，所以从性能上来说，要比StringBuilder差一些。
+
+# 慎重使用正则表达式
 
